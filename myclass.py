@@ -94,6 +94,7 @@ class Moves(object):
     出牌类,单,对,三,三带一,三带二,顺子,炸弹
     """ 
     def __init__(self):
+        #出牌信息
         self.dan = []
         self.dui = []
         self.san = []
@@ -101,6 +102,93 @@ class Moves(object):
         self.san_dai_er = []
         self.bomb = []
         self.shunzi = []
+
+        #牌数量信息
+        self.card_num_info = {}
+        #牌顺序信息,计算顺子
+        self.card_order_info = []
+        
+    #获取全部出牌列表
+    def get_moves(self, cards_left):
+        
+        #统计牌数量/顺序信息
+        for i in cards_left:
+            #数量
+            tmp = self.card_num_info.get(i.name, [])
+            if len(tmp) == 0:
+                self.card_num_info[i.name] = [i]
+            else:
+                self.card_num_info[i.name].append(i)
+            #顺序
+            if i.rank in [13,14,15]: #不统计2,小王,大王
+                continue
+            elif len(self.card_order_info) == 0:
+                self.card_order_info.append(i)
+            elif i.rank != self.card_order_info[-1].rank:
+                self.card_order_info.append(i)
+                
+        #出单,出对,出三,炸弹(考虑拆开)
+        for k, v in self.card_num_info.items():
+            if len(v) == 1:
+                self.dan.append(v)
+            elif len(v) == 2:
+                self.dui.append(v)
+                self.dan.append(v[:1])
+            elif len(v) == 3:
+                self.san.append(v)
+                self.dui.append(v[:2])
+                self.dan.append(v[:1])
+            elif len(v) == 4:
+                self.bomb.append(v)
+                self.san.append(v[:3])
+                self.dui.append(v[:2])
+                self.dan.append(v[:1])
+                
+        #三带一,三带二
+        for san in self.san:
+            for dan in self.dan:
+                #防止重复
+                if dan[0].name != san[0].name:
+                    self.san_dai_yi.append(san+dan)
+            for dui in self.dui:
+                #防止重复
+                if dui[0].name != san[0].name:
+                    self.san_dai_er.append(san+dui)  
+                    
+        #获取最长顺子
+        max_len = []
+        for i in self.card_order_info:
+            if i == self.card_order_info[0]:
+                max_len.append(i)
+            elif max_len[-1].rank == i.rank - 1:
+                max_len.append(i)
+            else:
+                if len(max_len) >= 5:
+                   self.shunzi.append(max_len) 
+                max_len = [i]
+        #最后一轮
+        if len(max_len) >= 5:
+           self.shunzi.append(max_len)   
+        #拆顺子 
+        shunzi_sub = []             
+        for i in self.shunzi:
+            len_total = len(i)
+            n = len_total - 5
+            #遍历所有可能顺子长度
+            while(n > 0):
+                len_sub = len_total - n
+                j = 0
+                while(len_sub+j <= len(i)):
+                    #遍历该长度所有组合
+                    shunzi_sub.append(i[j:len_sub+j])
+                    j = j + 1
+                n = n - 1
+        self.shunzi.extend(shunzi_sub)
+                
+            
+            
+            
+            
     #展示
     def show(self, info):
         print info
@@ -127,70 +215,12 @@ class Player(object):
         self.total_moves = Moves()
         #下次出牌可选列表
         self.next_moves = Moves()
-        #牌数量信息
-        self.card_num_info = {}
-        #牌顺序信息,计算顺子
-        self.card_order_info = []
         
-    #获取出牌列表
-    def get_moves(self):
-        #统计牌数量/顺序信息
-        for i in self.cards_left:
-            #数量
-            tmp = self.card_num_info.get(i.name, [])
-            if len(tmp) == 0:
-                self.card_num_info[i.name] = [i]
-            else:
-                self.card_num_info[i.name].append(i)
-            #顺序
-            if i.rank in [13,14,15]: #不统计2,小王,大王
-                continue
-            elif len(self.card_order_info) == 0:
-                self.card_order_info.append(i)
-            elif i.rank != self.card_order_info[-1].rank:
-                self.card_order_info.append(i)
-                
-        #出单,出对,出三,炸弹(考虑拆开)
-        for k, v in self.card_num_info.items():
-            if len(v) == 1:
-                self.total_moves.dan.append(v)
-            elif len(v) == 2:
-                self.total_moves.dui.append(v)
-                self.total_moves.dan.append(v[:1])
-            elif len(v) == 3:
-                self.total_moves.san.append(v)
-                self.total_moves.dui.append(v[:2])
-                self.total_moves.dan.append(v[:1])
-            elif len(v) == 4:
-                self.total_moves.bomb.append(v)
-                self.total_moves.san.append(v[:3])
-                self.total_moves.dui.append(v[:2])
-                self.total_moves.dan.append(v[:1])
-        #三带一,三带二
-        for san in self.total_moves.san:
-            for dan in self.total_moves.dan:
-                #防止重复
-                if dan[0].name != san[0].name:
-                    self.total_moves.san_dai_yi.append(san+dan)
-            for dui in self.total_moves.dui:
-                #防止重复
-                if dui[0].name != san[0].name:
-                    self.total_moves.san_dai_er.append(san+dui)    
-        #顺子
-        max_len = []
-        for i in self.card_order_info:
-            if i == self.card_order_info[0]:
-                max_len.append(i)
-            elif max_len[-1].rank == i.rank - 1:
-                max_len.append(i)
-            else:
-                if len(max_len) >= 5:
-                   self.total_moves.shunzi.append(max_len) 
-                max_len = [i]
-        #最后一轮
-        if len(max_len) >= 5:
-           self.total_moves.shunzi.append(max_len)                 
-
+    
+    def go(self):
+    #def go(self, last_move_type, last_move):
+        #获取全部出牌列表
+        self.total_moves.get_moves(self.cards_left)
 
     
     

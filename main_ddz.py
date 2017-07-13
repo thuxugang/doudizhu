@@ -25,8 +25,7 @@ if __name__=="__main__":
     game_start(players, playrecords, cards)
     playrecords.show("start")
     
-    players[0].get_moves()
-    card_show(players[0].card_order_info, "order",1)
+    players[0].go()
     players[0].total_moves.show('1')
     
     
