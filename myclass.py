@@ -129,16 +129,27 @@ class Player(object):
         self.next_moves = Moves()
         #牌数量信息
         self.card_num_info = {}
+        #牌顺序信息,计算顺子
+        self.card_order_info = []
         
     #获取出牌列表
     def get_moves(self):
-        #统计牌数量信息
+        #统计牌数量/顺序信息
         for i in self.cards_left:
+            #数量
             tmp = self.card_num_info.get(i.name, [])
             if len(tmp) == 0:
                 self.card_num_info[i.name] = [i]
             else:
                 self.card_num_info[i.name].append(i)
+            #顺序
+            if i.rank in [13,14,15]: #不统计2,小王,大王
+                continue
+            elif len(self.card_order_info) == 0:
+                self.card_order_info.append(i)
+            elif i.rank != self.card_order_info[-1].rank:
+                self.card_order_info.append(i)
+                
         #出单,出对,出三,炸弹(考虑拆开)
         for k, v in self.card_num_info.items():
             if len(v) == 1:
@@ -166,7 +177,19 @@ class Player(object):
                 if dui[0].name != san[0].name:
                     self.total_moves.san_dai_er.append(san+dui)    
         #顺子
-        
+        max_len = []
+        for i in self.card_order_info:
+            if i == self.card_order_info[0]:
+                max_len.append(i)
+            elif max_len[-1].rank == i.rank - 1:
+                max_len.append(i)
+            else:
+                if len(max_len) >= 5:
+                   self.total_moves.shunzi.append(max_len) 
+                max_len = [i]
+        #最后一轮
+        if len(max_len) >= 5:
+           self.total_moves.shunzi.append(max_len)                 
 
 
     

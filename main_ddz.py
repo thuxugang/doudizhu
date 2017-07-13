@@ -6,7 +6,8 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from myclass import Cards, Player, PlayRecords
 from game_process import game_start
-     
+from myutil import card_show
+   
 if __name__=="__main__":
     
     #初始化一副扑克牌类
@@ -24,8 +25,9 @@ if __name__=="__main__":
     game_start(players, playrecords, cards)
     playrecords.show("start")
     
-    
-    
+    players[0].get_moves()
+    card_show(players[0].card_order_info, "order",1)
+    players[0].total_moves.show('1')
     
     
     
