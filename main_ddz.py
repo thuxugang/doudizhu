@@ -7,74 +7,77 @@ class Cards(object):
     一副扑克牌类,54张排,abcd四种花色,小王14-a,大王15-a
     """
     def __init__(self,):
-        #初始化扑克牌名称
-        self.cards_name = ['1-a', '1-b','1-c','1-d',
-                           '2-a', '2-b','2-c','2-d',
-                           '3-a', '3-b','3-c','3-d',
-                           '4-a', '4-b','4-c','4-d',
-                           '5-a', '5-b','5-c','5-d',
-                           '6-a', '6-b','6-c','6-d',
-                           '7-a', '7-b','7-c','7-d',
-                           '8-a', '8-b','8-c','8-d',
-                           '9-a', '9-b','9-c','9-d',
-                           '10-a', '10-b','10-c','10-d',
-                           '11-a', '11-b','11-c','11-d',
-                           '12-a', '12-b','12-c','12-d',
-                           '13-a', '13-b','13-c','13-d',
-                           '14-a', '15-a']
+        #初始化扑克牌类型
+        self.cards_type = ['1-a-12', '1-b-12','1-c-12','1-d-12',
+                           '2-a-13', '2-b-13','2-c-13','2-d-13',
+                           '3-a-1', '3-b-1','3-c-1','3-d-1',
+                           '4-a-2', '4-b-2','4-c-2','4-d-2',
+                           '5-a-3', '5-b-3','5-c-3','5-d-3',
+                           '6-a-4', '6-b-4','6-c-4','6-d-4',
+                           '7-a-5', '7-b-5','7-c-5','7-d-5',
+                           '8-a-6', '8-b-6','8-c-6','8-d-6',
+                           '9-a-7', '9-b-7','9-c-7','9-d-7',
+                           '10-a-8', '10-b-8','10-c-8','10-d-8',
+                           '11-a-9', '11-b-9','11-c-9','11-d-9',
+                           '12-a-10', '12-b-10','12-c-10','12-d-10',
+                           '13-a-11', '13-b-11','13-c-11','13-d-11',
+                           '14-a-14', '15-a-15']
         #初始化扑克牌类                  
         self.cards = self.get_cards()
 
-        #定义扑克牌大小
-        self.cards_orders = self.get_cards_orders()
-        
     #初始化扑克牌类
     def get_cards(self):
         cards = []
-        for name in self.cards_name:
-            cards.append(Card(name))
+        for card_type in self.cards_type:
+            cards.append(Card(card_type))
         #打乱顺序
         np.random.shuffle(cards)
         return cards
     
-    #定义扑克牌大小
-    def get_cards_orders(self):
-        cards_orders = {}
-        j = 0
-        #3-13
-        for i in range(3,14):
-            cards_orders[i] = j
-            j = j + 1
-        #1-2
-        for i in range(1,3):
-            cards_orders[i] = j
-            j = j + 1     
-        #14-15
-        for i in range(14,16):
-            cards_orders[i] = j
-            j = j + 1    
-        return cards_orders
                            
 class Card(object):
     """
     扑克牌类
     """
-    def __init__(self, name):
-        self.name = name
-        #大小
-        self.rank = int(self.name.split('-')[0])
+    def __init__(self, card_type):
+        self.card_type = card_type
+        #名称
+        self.name = self.card_type.split('-')[0]
         #花色
-        self.color = self.name.split('-')[1]
-    
-    #判断大小,参数为另一个扑克牌类Card实例和一副扑克牌类Cards实例
-    def bigger_than(self, card_instance, cards_instance):
-        if (cards_instance.cards_orders[self.rank] > 
-            cards_instance.cards_orders[card_instance.rank]):
+        self.color = self.card_type.split('-')[1]
+        #大小
+        self.rank = int(self.card_type.split('-')[2])
+        
+    #判断大小
+    def bigger_than(self, card_instance):
+        if (self.rank > card_instance.rank):
             return True
         else:
             return False
         
-
+#展示扑克函数
+def card_show(cards, info, n):
+    
+    #扑克牌记录类展示
+    if n == 1:
+        print info
+        names = []
+        for i in cards:
+            names.append(i.name+i.color)
+        print names    
+    #Moves展示
+    elif n == 2:
+        if len(cards) == 0:
+            return 0
+        print info
+        moves = []
+        for i in cards:
+            names = []
+            for j in i:
+                names.append(j.name+j.color)
+            moves.append(names)
+        print moves    
+    
 class PlayRecords(object):
     """
     扑克牌记录类
@@ -88,24 +91,36 @@ class PlayRecords(object):
         self.records = []
     
     #展示
-    def show(self):
-        print "player 1"
-        names = []
-        for i in self.cards_left1:
-            names.append(i.name)
-        print names
-        print "player 2"
-        names = []
-        for i in self.cards_left2:
-            names.append(i.name)
-        print names    
-        print "player 3"
-        names = []
-        for i in self.cards_left3:
-            names.append(i.name)
-        print names 
+    def show(self, info):
+        print info
+        card_show(self.cards_left1, "player 1", 1)
+        card_show(self.cards_left2, "player 2", 1)
+        card_show(self.cards_left3, "player 3", 1)
         print "records"
         print self.records
+
+class Moves(object):
+    """
+    出牌类,单,对,三,三带一,三带二,顺子,炸弹
+    """ 
+    def __init__(self):
+        self.dan = []
+        self.dui = []
+        self.san = []
+        self.san_dai_yi = []
+        self.san_dai_er = []
+        self.bomb = []
+        self.shunzi = []
+    #展示
+    def show(self, info):
+        print info
+        card_show(self.dan, "dan", 2)
+        card_show(self.dui, "dui", 2)
+        card_show(self.san, "san", 2)
+        card_show(self.san_dai_yi, "san_dai_yi", 2)
+        card_show(self.san_dai_er, "san_dai_er", 2)
+        card_show(self.bomb, "bomb", 2)
+        card_show(self.shunzi, "shunzi", 2)
         
 class Player(object):
     """
@@ -114,23 +129,65 @@ class Player(object):
     def __init__(self, player_id):
         self.player_id = player_id
         self.cards_left = []
-        #是否该出牌
-        self.turn_on = False
+        #所有出牌可选列表
+        self.total_moves = Moves()
         #下次出牌可选列表
-        self.next_move = []
-    
-    #出牌
-    def go():
+        self.next_moves = Moves()
+        #牌数量信息
+        self.card_num_info = {}
+        
+    #获取出牌列表
+    def get_moves(self):
+        #统计牌数量信息
+        for i in self.cards_left:
+            tmp = self.card_num_info.get(i.name, [])
+            if len(tmp) == 0:
+                self.card_num_info[i.name] = [i]
+            else:
+                self.card_num_info[i.name].append(i)
+        #出单,出对,出三,炸弹(考虑拆开)
+        for k, v in self.card_num_info.items():
+            if len(v) == 1:
+                self.total_moves.dan.append(v)
+            elif len(v) == 2:
+                self.total_moves.dui.append(v)
+                self.total_moves.dan.append(v[:1])
+            elif len(v) == 3:
+                self.total_moves.san.append(v)
+                self.total_moves.dui.append(v[:2])
+                self.total_moves.dan.append(v[:1])
+            elif len(v) == 4:
+                self.total_moves.bomb.append(v)
+                self.total_moves.san.append(v[:3])
+                self.total_moves.dui.append(v[:2])
+                self.total_moves.dan.append(v[:1])
+        #三带一,三带二
+        for san in self.total_moves.san:
+            for dan in self.total_moves.dan:
+                #防止重复
+                if dan[0].name != san[0].name:
+                    self.total_moves.san_dai_yi.append(san+dan)
+            for dui in self.total_moves.dui:
+                #防止重复
+                if dui[0].name != san[0].name:
+                    self.total_moves.san_dai_er.append(san+dui)    
+        #顺子
+        
 
 #发牌
 def game_start(players, playrecords, cards):
     
-    players[0].cards_left = playrecords.cards_left1 = cards.cards[:18]
-    players[1].cards_left = playrecords.cards_left2 = cards.cards[18:36]
-    players[2].cards_left = playrecords.cards_left3 = cards.cards[36:]
+    #排序
+    p1_cards = cards.cards[:18]
+    p1_cards.sort(key=lambda x: x.rank)
+    p2_cards = cards.cards[18:36]
+    p2_cards.sort(key=lambda x: x.rank)
+    p3_cards = cards.cards[36:]
+    p3_cards.sort(key=lambda x: x.rank)
+    players[0].cards_left = playrecords.cards_left1 = p1_cards
+    players[1].cards_left = playrecords.cards_left2 = p2_cards
+    players[2].cards_left = playrecords.cards_left3 = p3_cards
     
-    #player0先出
-    players[0].turn_on = True
      
 if __name__=="__main__":
     
@@ -139,7 +196,7 @@ if __name__=="__main__":
     
     #初始化players
     players = []
-    for i in range(3):
+    for i in range(1,4):
         players.append(Player(i))
     
     #初始化扑克牌记录类
@@ -147,7 +204,7 @@ if __name__=="__main__":
     
     #发牌
     game_start(players, playrecords, cards)
-    playrecords.show()
+    playrecords.show("start")
     
     
     
