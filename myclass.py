@@ -5,7 +5,7 @@ Created on Thu Jul 13 21:55:58 2017
 @author: XuGang
 """
 import numpy as np
-from myutil import card_show
+from myutil import card_show, choose
 
 
 ############################################
@@ -72,6 +72,8 @@ class PlayRecords(object):
         self.cards_left1 = []
         self.cards_left2 = []
         self.cards_left3 = []
+        
+        self.cards_lefts = [self.cards_left1, self.cards_left2, self.cards_left3]
         
         #出牌记录
         self.records = []
@@ -284,13 +286,28 @@ class Player(object):
         #所有出牌可选列表
         self.total_moves = Moves()
         
-    
-    #def go(self):
-    def go(self, last_move_type, last_move):
+    #根据next_move同步cards_left
+    def record_move(self, playrecords):
+        
+        #playrecords中records记录[id,next_move]
+        playrecords.records.append([self.player_id, self.next_move])
+        for i in self.next_move:
+           self.cards_left.remove(i) 
+           playrecords.cards_lefts[self.player_id-1].remove(i) 
+        
+        
+    #出牌
+    def go(self, last_move_type, last_move, playrecords):
         #获取全部出牌列表
         self.total_moves.get_moves(self.cards_left)
         #获取下次出牌列表
         self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
+        #在next_moves中选择出牌方法
+        self.next_move = choose(self.next_moves)
+        #记录
+        self.record_move(playrecords)
+        
+        return self.next_move
     
     
     

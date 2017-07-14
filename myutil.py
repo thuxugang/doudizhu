@@ -4,7 +4,9 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
-        
+import numpy as np
+
+ 
 #展示扑克函数
 def card_show(cards, info, n):
     
@@ -28,7 +30,9 @@ def card_show(cards, info, n):
             moves.append(names)
         print moves    
 
-    
+#在Player的next_moves中选择出牌方法,目前random
+def choose(next_moves):
+    return next_moves[np.random.randint(0,len(next_moves))]  
     
     
     
