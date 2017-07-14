@@ -45,9 +45,9 @@ def card_show(cards, info, n):
         
 #在Player的next_moves中选择出牌方法,目前random
 def choose(next_move_types, next_moves):
-    #要
+    #要不起
     if len(next_moves) == 0:
-        return "", ""
+        return "yaobuqi", []
     else:
         r = np.random.randint(0,len(next_moves))
     return next_move_types[r], next_moves[r]  

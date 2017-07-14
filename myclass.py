@@ -201,7 +201,7 @@ class Moves(object):
     #获取下次出牌列表
     def get_next_moves(self, last_move_type, last_move): 
         #没有last,全加上,除了bomb最后加
-        if last_move_type == "":
+        if last_move_type == "start":
             moves_types = ["dan", "dui", "san", "san_dai_yi", "san_dai_er", "shunzi"]
             i = 0
             for move_type in [self.dan, self.dui, self.san, self.san_dai_yi, 
@@ -276,13 +276,13 @@ class Moves(object):
     #展示
     def show(self, info):
         print info
-        card_show(self.dan, "dan", 2)
-        card_show(self.dui, "dui", 2)
-        card_show(self.san, "san", 2)
-        card_show(self.san_dai_yi, "san_dai_yi", 2)
-        card_show(self.san_dai_er, "san_dai_er", 2)
-        card_show(self.bomb, "bomb", 2)
-        card_show(self.shunzi, "shunzi", 2)
+        #card_show(self.dan, "dan", 2)
+        #card_show(self.dui, "dui", 2)
+        #card_show(self.san, "san", 2)
+        #card_show(self.san_dai_yi, "san_dai_yi", 2)
+        #card_show(self.san_dai_er, "san_dai_er", 2)
+        #card_show(self.bomb, "bomb", 2)
+        #card_show(self.shunzi, "shunzi", 2)
         card_show(self.next_moves, "next_moves", 2)
 
 
@@ -296,14 +296,12 @@ class Player(object):
     def __init__(self, player_id):
         self.player_id = player_id
         self.cards_left = []
-        #所有出牌可选列表
-        self.total_moves = Moves()
 
     #展示
     def show(self, info):
         self.total_moves.show(info)
         card_show(self.next_move, "next_move", 1)
-        card_show(self.cards_left, "card_left", 1)
+        #card_show(self.cards_left, "card_left", 1)
         
     #根据next_move同步cards_left
     def record_move(self, playrecords):
@@ -326,18 +324,27 @@ class Player(object):
         
     #出牌
     def go(self, last_move_type, last_move, playrecords, info):
+        #所有出牌可选列表
+        self.total_moves = Moves()
         #获取全部出牌列表
         self.total_moves.get_moves(self.cards_left)
         #获取下次出牌列表
         self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves)
+        #要不起
+        yaobuqi = False
+        if self.next_move_type == "yaobuqi":
+            yaobuqi = True
+            self.show("Player " + str(self.player_id))
+            return last_move_type, last_move, False, yaobuqi
+        
         #记录
         end = self.record_move(playrecords)
         #展示
         self.show("Player " + str(self.player_id))  
         
-        return self.next_move_type, self.next_move, end
+        return self.next_move_type, self.next_move, end, yaobuqi
     
     
     
