@@ -6,7 +6,6 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from myclass import Cards, Player, PlayRecords
 from game_process import game_start
-from myutil import card_show
    
 if __name__=="__main__":
     
@@ -25,7 +24,7 @@ if __name__=="__main__":
     game_start(players, playrecords, cards)
     playrecords.show("start")
     
-    players[0].go()
+    players[0].go("", "")
     players[0].total_moves.show('1')
     
     
