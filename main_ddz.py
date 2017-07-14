@@ -30,7 +30,7 @@ if __name__=="__main__":
     playround = 1
     i = 0
     yaobuqis = []
-    while(not end):
+    while(True):
         last_move_type, last_move, end, yaobuqi = players[i].go(last_move_type, last_move, playrecords, str(i+1))
         if yaobuqi:
             yaobuqis.append(i)
@@ -39,7 +39,8 @@ if __name__=="__main__":
             yaobuqis = []
             last_move_type = last_move = "start"
         if end:
-            print "=============End: Player " + str(i+1) + " Win !============="
+            playrecords.show("=============End: Player " + str(i+1) + " Win !=============")
+            break
         i = i + 1
         #一轮结束
         if i > 2:

@@ -37,9 +37,13 @@ def card_show(cards, info, n):
             tmp = []
             tmp.append(i[0])
             tmp_name = []
-            for j in i[1]:
-                tmp_name.append(j.name+j.color)
-            tmp.append(tmp_name)
+            #处理要不起
+            try:
+                for j in i[1]:
+                    tmp_name.append(j.name+j.color)
+                tmp.append(tmp_name)
+            except:
+                tmp.append("yaobuqi")
             names.append(tmp)
         print names
         
@@ -49,7 +53,11 @@ def choose(next_move_types, next_moves):
     if len(next_moves) == 0:
         return "yaobuqi", []
     else:
-        r = np.random.randint(0,len(next_moves))
+        r = np.random.randint(0,len(next_moves)+1)
+        #添加不要
+        if r == len(next_moves):
+            return "yaobuqi", []
+        
     return next_move_types[r], next_moves[r]  
     
     

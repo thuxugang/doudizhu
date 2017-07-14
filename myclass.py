@@ -337,6 +337,7 @@ class Player(object):
         if self.next_move_type == "yaobuqi":
             yaobuqi = True
             self.show("Player " + str(self.player_id))
+            playrecords.records.append([self.player_id, self.next_move_type])
             return last_move_type, last_move, False, yaobuqi
         
         #记录
