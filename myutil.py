@@ -29,10 +29,28 @@ def card_show(cards, info, n):
                 names.append(j.name+j.color)
             moves.append(names)
         print moves    
-
+    #record展示
+    elif n == 3:
+        print info
+        names = []
+        for i in cards:
+            tmp = []
+            tmp.append(i[0])
+            tmp_name = []
+            for j in i[1]:
+                tmp_name.append(j.name+j.color)
+            tmp.append(tmp_name)
+            names.append(tmp)
+        print names
+        
 #在Player的next_moves中选择出牌方法,目前random
-def choose(next_moves):
-    return next_moves[np.random.randint(0,len(next_moves))]  
+def choose(next_move_types, next_moves):
+    #要
+    if len(next_moves) == 0:
+        return "", ""
+    else:
+        r = np.random.randint(0,len(next_moves))
+    return next_move_types[r], next_moves[r]  
     
     
     

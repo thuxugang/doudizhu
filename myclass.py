@@ -73,19 +73,16 @@ class PlayRecords(object):
         self.cards_left2 = []
         self.cards_left3 = []
         
-        self.cards_lefts = [self.cards_left1, self.cards_left2, self.cards_left3]
-        
         #出牌记录
         self.records = []
-    
+   
     #展示
     def show(self, info):
         print info
         card_show(self.cards_left1, "player 1", 1)
         card_show(self.cards_left2, "player 2", 1)
         card_show(self.cards_left3, "player 3", 1)
-        print "records"
-        print self.records
+        card_show(self.records, "record", 3)
 
 
 ############################################
@@ -114,6 +111,8 @@ class Moves(object):
         
         #下次出牌
         self.next_moves = []
+        #下次出牌类型
+        self.next_moves_type = []
         
     #获取全部出牌列表
     def get_moves(self, cards_left):
@@ -203,46 +202,56 @@ class Moves(object):
     def get_next_moves(self, last_move_type, last_move): 
         #没有last,全加上,除了bomb最后加
         if last_move_type == "":
+            moves_types = ["dan", "dui", "san", "san_dai_yi", "san_dai_er", "shunzi"]
+            i = 0
             for move_type in [self.dan, self.dui, self.san, self.san_dai_yi, 
                       self.san_dai_er, self.shunzi]:
                 for move in move_type:
                     self.next_moves.append(move)
+                    self.next_moves_type.append(moves_types[i])
+                i = i + 1
         #出单
         elif last_move_type == "dan":
             for move in self.dan:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
-                    self.next_moves.append(move)            
+                    self.next_moves.append(move)  
+                    self.next_moves_type.append("dan")
         #出对
         elif last_move_type == "dui":
             for move in self.dui:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
-                    self.next_moves.append(move)                 
+                    self.next_moves.append(move) 
+                    self.next_moves_type.append("dui")
         #出三个
         elif last_move_type == "san":
             for move in self.san:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
                     self.next_moves.append(move) 
+                    self.next_moves_type.append("san")
         #出三带一
         elif last_move_type == "san_dai_yi":
             for move in self.san_dai_yi:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
-                    self.next_moves.append(move)             
+                    self.next_moves.append(move)    
+                    self.next_moves_type.append("san_dai_yi")
         #出三带二
         elif last_move_type == "san_dai_er":
             for move in self.san_dai_er:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
-                    self.next_moves.append(move)              
+                    self.next_moves.append(move)   
+                    self.next_moves_type.append("san_dai_er")
         #出炸弹
         elif last_move_type == "bomb":
             for move in self.bomb:
                 #比last大
                 if move[0].bigger_than(last_move[0]):
                     self.next_moves.append(move) 
+                    self.next_moves_type.append("bomb")
         #出顺子
         elif last_move_type == "shunzi":
             for move in self.shunzi:
@@ -251,6 +260,7 @@ class Moves(object):
                     #比last大
                     if move[0].bigger_than(last_move[0]):
                         self.next_moves.append(move) 
+                        self.next_moves_type.append("shunzi")
         else:
             print "last_move_type_wrong"
             
@@ -258,6 +268,9 @@ class Moves(object):
         if last_move_type != "bomb":
             for move in self.bomb:
                 self.next_moves.append(move) 
+                self.next_moves_type.append("bomb")
+                
+        return self.next_moves_type, self.next_moves
     
     
     #展示
@@ -285,29 +298,46 @@ class Player(object):
         self.cards_left = []
         #所有出牌可选列表
         self.total_moves = Moves()
+
+    #展示
+    def show(self, info):
+        self.total_moves.show(info)
+        card_show(self.next_move, "next_move", 1)
+        card_show(self.cards_left, "card_left", 1)
         
     #根据next_move同步cards_left
     def record_move(self, playrecords):
-        
         #playrecords中records记录[id,next_move]
         playrecords.records.append([self.player_id, self.next_move])
         for i in self.next_move:
            self.cards_left.remove(i) 
-           playrecords.cards_lefts[self.player_id-1].remove(i) 
-        
+        #同步playrecords
+        if self.player_id == 1:
+            playrecords.cards_left1 = self.cards_left
+        elif self.player_id == 2:
+            playrecords.cards_left2 = self.cards_left 
+        elif self.player_id == 3:
+            playrecords.cards_left3 = self.cards_left  
+        #是否牌局结束
+        end = False
+        if len(self.cards_left) == 0:
+            end = True
+        return end
         
     #出牌
-    def go(self, last_move_type, last_move, playrecords):
+    def go(self, last_move_type, last_move, playrecords, info):
         #获取全部出牌列表
         self.total_moves.get_moves(self.cards_left)
         #获取下次出牌列表
-        self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
+        self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
         #在next_moves中选择出牌方法
-        self.next_move = choose(self.next_moves)
+        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves)
         #记录
-        self.record_move(playrecords)
+        end = self.record_move(playrecords)
+        #展示
+        self.show("Player " + str(self.player_id))  
         
-        return self.next_move
+        return self.next_move_type, self.next_move, end
     
     
     
