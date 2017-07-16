@@ -43,20 +43,25 @@ def card_show(cards, info, n):
                     tmp_name.append(j.name+j.color)
                 tmp.append(tmp_name)
             except:
-                tmp.append("yaobuqi")
+                tmp.append(i[1])
             names.append(tmp)
         print names
         
 #在Player的next_moves中选择出牌方法,目前random
-def choose(next_move_types, next_moves):
+def choose(next_move_types, next_moves, last_move_type):
     #要不起
     if len(next_moves) == 0:
         return "yaobuqi", []
     else:
-        r = np.random.randint(0,len(next_moves)+1)
+        #start不能不要
+        if last_move_type == "start":
+            r_max = len(next_moves)
+        else:
+            r_max = len(next_moves)+1
+        r = np.random.randint(0,r_max)
         #添加不要
         if r == len(next_moves):
-            return "yaobuqi", []
+            return "buyao", []
         
     return next_move_types[r], next_moves[r]  
     

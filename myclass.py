@@ -331,10 +331,10 @@ class Player(object):
         #获取下次出牌列表
         self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
         #在next_moves中选择出牌方法
-        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves)
-        #要不起
+        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type)
+        #要不起&不要
         yaobuqi = False
-        if self.next_move_type == "yaobuqi":
+        if self.next_move_type in ["yaobuqi","buyao"]:
             yaobuqi = True
             self.show("Player " + str(self.player_id))
             playrecords.records.append([self.player_id, self.next_move_type])
