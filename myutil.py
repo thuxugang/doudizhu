@@ -46,9 +46,16 @@ def card_show(cards, info, n):
                 tmp.append(i[1])
             names.append(tmp)
         print names
-        
-#在Player的next_moves中选择出牌方法,目前random
-def choose(next_move_types, next_moves, last_move_type):
+       
+
+#在Player的next_moves中选择出牌方法
+def choose(next_move_types, next_moves, last_move_type, model):
+    
+    if model == "random":
+        return choose_random(next_move_types, next_moves, last_move_type)
+
+#random
+def choose_random(next_move_types, next_moves, last_move_type):
     #要不起
     if len(next_moves) == 0:
         return "yaobuqi", []
@@ -63,9 +70,23 @@ def choose(next_move_types, next_moves, last_move_type):
         if r == len(next_moves):
             return "buyao", []
         
-    return next_move_types[r], next_moves[r]  
+    return next_move_types[r], next_moves[r] 
     
+#发牌
+def game_init(players, playrecords, cards):
     
+    #洗牌
+    np.random.shuffle(cards.cards)
+    #排序
+    p1_cards = cards.cards[:18]
+    p1_cards.sort(key=lambda x: x.rank)
+    p2_cards = cards.cards[18:36]
+    p2_cards.sort(key=lambda x: x.rank)
+    p3_cards = cards.cards[36:]
+    p3_cards.sort(key=lambda x: x.rank)
+    players[0].cards_left = playrecords.cards_left1 = p1_cards
+    players[1].cards_left = playrecords.cards_left2 = p2_cards
+    players[2].cards_left = playrecords.cards_left3 = p3_cards    
     
     
     

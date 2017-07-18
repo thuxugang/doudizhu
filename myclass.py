@@ -4,7 +4,7 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
-import numpy as np
+#import numpy as np
 from myutil import card_show, choose
 
 
@@ -15,7 +15,7 @@ class Cards(object):
     """
     一副扑克牌类,54张排,abcd四种花色,小王14-a,大王15-a
     """
-    def __init__(self,):
+    def __init__(self):
         #初始化扑克牌类型
         self.cards_type = ['1-a-12', '1-b-12','1-c-12','1-d-12',
                            '2-a-13', '2-b-13','2-c-13','2-d-13',
@@ -40,10 +40,9 @@ class Cards(object):
         for card_type in self.cards_type:
             cards.append(Card(card_type))
         #打乱顺序
-        np.random.shuffle(cards)
+        #np.random.shuffle(cards)
         return cards
     
-                           
 class Card(object):
     """
     扑克牌类
@@ -69,12 +68,27 @@ class PlayRecords(object):
     扑克牌记录类
     """
     def __init__(self):
+        #当前手牌
         self.cards_left1 = []
         self.cards_left2 = []
         self.cards_left3 = []
         
+        #可能出牌选择
+        self.next_moves1 = []
+        self.next_moves2 = []
+        self.next_moves3 = []
+
+        #出牌记录
+        self.next_move1 = []
+        self.next_move2 = []
+        self.next_move3 = []
+        
         #出牌记录
         self.records = []
+        
+        #胜利者
+        #winner=0,1,2,3 0表示未结束,1,2,3表示winner
+        self.winner = 0
    
     #展示
     def show(self, info):
@@ -283,7 +297,7 @@ class Moves(object):
         #card_show(self.san_dai_er, "san_dai_er", 2)
         #card_show(self.bomb, "bomb", 2)
         #card_show(self.shunzi, "shunzi", 2)
-        card_show(self.next_moves, "next_moves", 2)
+        #card_show(self.next_moves, "next_moves", 2)
 
 
 ############################################
@@ -306,16 +320,26 @@ class Player(object):
     #根据next_move同步cards_left
     def record_move(self, playrecords):
         #playrecords中records记录[id,next_move]
-        playrecords.records.append([self.player_id, self.next_move])
-        for i in self.next_move:
-           self.cards_left.remove(i) 
+        if self.next_move_type in ["yaobuqi", "buyao"]:
+            self.next_move = self.next_move_type
+            playrecords.records.append([self.player_id, self.next_move_type])
+        else:
+            playrecords.records.append([self.player_id, self.next_move])
+            for i in self.next_move:
+               self.cards_left.remove(i) 
         #同步playrecords
         if self.player_id == 1:
             playrecords.cards_left1 = self.cards_left
+            playrecords.next_moves1.append(self.next_moves)
+            playrecords.next_move1.append(self.next_move)
         elif self.player_id == 2:
             playrecords.cards_left2 = self.cards_left 
+            playrecords.next_moves2.append(self.next_moves)
+            playrecords.next_move2.append(self.next_move)
         elif self.player_id == 3:
             playrecords.cards_left3 = self.cards_left  
+            playrecords.next_moves3.append(self.next_moves)
+            playrecords.next_move3.append(self.next_move)
         #是否牌局结束
         end = False
         if len(self.cards_left) == 0:
@@ -323,7 +347,7 @@ class Player(object):
         return end
         
     #出牌
-    def go(self, last_move_type, last_move, playrecords, info):
+    def go(self, last_move_type, last_move, playrecords, model):
         #所有出牌可选列表
         self.total_moves = Moves()
         #获取全部出牌列表
@@ -331,23 +355,110 @@ class Player(object):
         #获取下次出牌列表
         self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
         #在next_moves中选择出牌方法
-        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type)
+        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, model)
+        #记录
+        end = self.record_move(playrecords)
+        #展示
+        #self.show("Player " + str(self.player_id))  
         #要不起&不要
         yaobuqi = False
         if self.next_move_type in ["yaobuqi","buyao"]:
             yaobuqi = True
-            self.show("Player " + str(self.player_id))
-            playrecords.records.append([self.player_id, self.next_move_type])
-            return last_move_type, last_move, False, yaobuqi
-        
-        #记录
-        end = self.record_move(playrecords)
-        #展示
-        self.show("Player " + str(self.player_id))  
-        
+            self.next_move_type = last_move_type
+            self.next_move = last_move
+            
         return self.next_move_type, self.next_move, end, yaobuqi
     
     
+############################################
+#               网页展示类                 #
+############################################
+class WebShow(object):
+    """
+    网页展示类
+    """    
+    def __init__(self, playrecords):
+        
+        #胜利者
+        self.winner = playrecords.winner
+        
+        #剩余手牌
+        self.cards_left1 = []
+        for i in playrecords.cards_left1:
+            self.cards_left1.append(i.name+i.color)
+        self.cards_left2 = []
+        for i in playrecords.cards_left2:
+            self.cards_left2.append(i.name+i.color)        
+        self.cards_left3 = []
+        for i in playrecords.cards_left3:
+            self.cards_left3.append(i.name+i.color)        
+        
+        #可能出牌
+        self.next_moves1 = []
+        if len(playrecords.next_moves1) != 0:
+            next_moves = playrecords.next_moves1[-1]
+            for move in next_moves:
+                cards = []
+                for card in move:
+                    cards.append(card.name+card.color)  
+                self.next_moves1.append(cards)
+        self.next_moves2 = []
+        if len(playrecords.next_moves2) != 0:
+            next_moves = playrecords.next_moves2[-1]
+            for move in next_moves:
+                cards = []
+                for card in move:
+                    cards.append(card.name+card.color)  
+                self.next_moves2.append(cards)        
+        self.next_moves3 = []
+        if len(playrecords.next_moves3) != 0:
+            next_moves = playrecords.next_moves3[-1]
+            for move in next_moves:
+                cards = []
+                for card in move:
+                    cards.append(card.name+card.color)  
+                self.next_moves3.append(cards)   
+                
+        #出牌
+        self.next_move1 = []
+        if len(playrecords.next_move1) != 0:
+            next_move = playrecords.next_move1[-1]
+            if next_move in ["yaobuqi", "buyao"]:
+                self.next_move1.append(next_move)
+            else:
+                for card in next_move:
+                    self.next_move1.append(card.name+card.color)  
+        self.next_move2 = []
+        if len(playrecords.next_move2) != 0:
+            next_move = playrecords.next_move2[-1]
+            if next_move in ["yaobuqi", "buyao"]:
+                self.next_move2.append(next_move)
+            else:
+                for card in next_move:
+                    self.next_move2.append(card.name+card.color) 
+        self.next_move3 = []
+        if len(playrecords.next_move3) != 0:
+            next_move = playrecords.next_move3[-1]
+            if next_move in ["yaobuqi", "buyao"]:
+                self.next_move3.append(next_move)
+            else:
+                for card in next_move:
+                    self.next_move3.append(card.name+card.color) 
+                
+        #记录
+        self.records = []
+        for i in playrecords.records:
+            tmp = []
+            tmp.append(i[0])
+            tmp_name = []
+            #处理要不起
+            try:
+                for j in i[1]:
+                    tmp_name.append(j.name+j.color)
+                tmp.append(tmp_name)
+            except:
+                tmp.append(i[1])
+            self.records.append(tmp)        
     
     
     
