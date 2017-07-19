@@ -89,6 +89,9 @@ class PlayRecords(object):
         #胜利者
         #winner=0,1,2,3 0表示未结束,1,2,3表示winner
         self.winner = 0
+        
+        #出牌者
+        self.player = 1
    
     #展示
     def show(self, info):
@@ -319,6 +322,8 @@ class Player(object):
         
     #根据next_move同步cards_left
     def record_move(self, playrecords):
+        #记录出牌者
+        playrecords.player = self.player_id
         #playrecords中records记录[id,next_move]
         if self.next_move_type in ["yaobuqi", "buyao"]:
             self.next_move = self.next_move_type
@@ -345,17 +350,22 @@ class Player(object):
         if len(self.cards_left) == 0:
             end = True
         return end
-        
-    #出牌
-    def go(self, last_move_type, last_move, playrecords, model):
+    
+    #选牌
+    def get_moves(self, last_move_type, last_move, playrecords):
         #所有出牌可选列表
         self.total_moves = Moves()
         #获取全部出牌列表
         self.total_moves.get_moves(self.cards_left)
         #获取下次出牌列表
-        self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)
+        self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)        
+        #返回下次出牌列表
+        return self.next_move_types, self.next_moves
+        
+    #出牌
+    def go(self, last_move_type, last_move, playrecords, model, action):
         #在next_moves中选择出牌方法
-        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, model)
+        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, model, action)
         #记录
         end = self.record_move(playrecords)
         #展示
@@ -459,6 +469,4 @@ class WebShow(object):
             except:
                 tmp.append(i[1])
             self.records.append(tmp)        
-    
-    
-    
+

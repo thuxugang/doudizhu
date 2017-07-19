@@ -4,8 +4,8 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
-from myclass import Cards, Player, PlayRecords, WebShow
-from myutil import game_init
+from game.myclass import Cards, Player, PlayRecords, WebShow
+from game.myutil import game_init
 import jsonpickle
 
                     
@@ -75,8 +75,9 @@ if __name__=="__main__":
     
     i = 0
     while(game_ddz.playrecords.winner == 0):
-        game_ddz.playrecords.show(str(i))
         game_ddz.next_move()
+        game_ddz.playrecords.show(str(i))
+        print game_ddz.playrecords.player
         i = i + 1
 
     
