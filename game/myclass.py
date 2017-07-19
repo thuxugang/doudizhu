@@ -4,10 +4,73 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
-#import numpy as np
-from myutil import card_show, choose
+from gameutil import card_show, choose, game_init
+import jsonpickle
 
-
+############################################
+#                 游戏类                   #
+############################################                   
+class Game(object):
+    
+    def __init__(self, models):
+        #初始化一副扑克牌类
+        self.cards = Cards()
+        
+        #play相关参数
+        self.end = False
+        self.last_move_type = self.last_move = "start"
+        self.playround = 1
+        self.i = 0
+        self.yaobuqis = []
+        
+        #choose模型
+        self.models = models
+        
+    #发牌
+    def game_start(self):
+        
+        #初始化players
+        self.players = []
+        self.players.append(Player(1, self.models[0]))
+        self.players.append(Player(2, self.models[1]))
+        self.players.append(Player(3, self.models[2]))
+        
+        #初始化扑克牌记录类
+        self.playrecords = PlayRecords()    
+        
+        #发牌
+        game_init(self.players, self.playrecords, self.cards)
+    
+    #返回扑克牌记录类
+    def get_record(self):
+        web_show = WebShow(self.playrecords)
+        #return jsonpickle.encode(web_show, unpicklable=False)
+        return web_show
+    
+    #返回下次出牌列表
+    def get_next_moves(self):
+        next_move_types, next_moves = self.players[self.i].get_moves(self.last_move_type, self.last_move, self.playrecords)
+        return next_move_types, next_moves
+    
+    #游戏进行    
+    def get_next_move(self, action):
+        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
+        if self.yaobuqi:
+            self.yaobuqis.append(self.i)
+        else:
+            self.yaobuqis = []
+        #都要不起
+        if len(self.yaobuqis) == 2:
+            self.yaobuqis = []
+            self.last_move_type = self.last_move = "start"
+        if self.end:
+            self.playrecords.winner = self.i+1
+        self.i = self.i + 1
+        #一轮结束
+        if self.i > 2:
+            self.playround = self.playround + 1
+            self.i = 0 
+            
 ############################################
 #              扑克牌相关类                 #
 ############################################
@@ -132,7 +195,7 @@ class Moves(object):
         self.next_moves_type = []
         
     #获取全部出牌列表
-    def get_moves(self, cards_left):
+    def get_total_moves(self, cards_left):
         
         #统计牌数量/顺序/王牌信息
         for i in cards_left:
@@ -310,9 +373,11 @@ class Player(object):
     """
     player类
     """
-    def __init__(self, player_id):
+    def __init__(self, player_id, model):
         self.player_id = player_id
         self.cards_left = []
+        #出牌模式
+        self.model = model
 
     #展示
     def show(self, info):
@@ -356,16 +421,16 @@ class Player(object):
         #所有出牌可选列表
         self.total_moves = Moves()
         #获取全部出牌列表
-        self.total_moves.get_moves(self.cards_left)
+        self.total_moves.get_total_moves(self.cards_left)
         #获取下次出牌列表
         self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)        
         #返回下次出牌列表
         return self.next_move_types, self.next_moves
         
     #出牌
-    def go(self, last_move_type, last_move, playrecords, model, action):
+    def play(self, last_move_type, last_move, playrecords, action):
         #在next_moves中选择出牌方法
-        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, model, action)
+        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, self.model, action)
         #记录
         end = self.record_move(playrecords)
         #展示
