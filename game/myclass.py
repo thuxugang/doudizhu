@@ -7,7 +7,19 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 from .gameutil import card_show, choose, game_init
+from .rlutil import get_state
 
+
+############################################
+#                 LR记录类                  #
+############################################  
+class RLRecord(object):
+    def __init__(self, s=None, a=None, r=None,s_=None):
+        self.s = s
+        self.a = a
+        self.r = r
+        self.s_ = s_
+        
 ############################################
 #                 游戏类                   #
 ############################################                   
@@ -26,6 +38,16 @@ class Game(object):
         
         #choose模型
         self.models = models
+        
+        #[s,a,r,s_]
+        self.q1 = []
+        self.q2 = []
+        self.q3 = []
+        
+        #记录rlrecord
+        self.rlrecord1 = None
+        self.rlrecord2 = None
+        self.rlrecord3 = None
         
     #发牌
     def game_start(self):
@@ -53,28 +75,61 @@ class Game(object):
         next_move_types, next_moves = self.players[self.i].get_moves(self.last_move_type, self.last_move, self.playrecords)
         return next_move_types, next_moves
     
+        
     #游戏进行    
-    def get_next_move(self, action):
-        while(self.i <= 2):
-            if self.i != 0:
-                self.get_next_moves()
-            self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
-            if self.yaobuqi:
-                self.yaobuqis.append(self.i)
+    def play(self, rl_record, action):
+
+        #记录rl_record
+        if self.playround > 1:
+            if self.i == 0:
+                self.q1.append(RLRecord(s=self.rlrecord1.s, a=self.rlrecord1.a, r=0, s_=get_state(self.playrecords, 1)))
+            elif self.i == 1:
+                self.q2.append(RLRecord(s=self.rlrecord2.s, a=self.rlrecord2.a, r=0, s_=get_state(self.playrecords, 2)))
             else:
-                self.yaobuqis = []
-            #都要不起
-            if len(self.yaobuqis) == 2:
-                self.yaobuqis = []
-                self.last_move_type = self.last_move = "start"
-            if self.end:
-                self.playrecords.winner = self.i+1
-                break
-            self.i = self.i + 1
+                self.q3.append(RLRecord(s=self.rlrecord3.s, a=self.rlrecord3.a, r=0, s_=get_state(self.playrecords, 3)))   
+        
+        if self.i == 0:
+            self.rlrecord1 = rl_record
+        elif self.i == 1:
+            self.rlrecord2 = rl_record
+        else:
+            self.rlrecord3 = rl_record            
+                
+        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
+        if self.yaobuqi:
+            self.yaobuqis.append(self.i)
+        else:
+            self.yaobuqis = []
+        #都要不起
+        if len(self.yaobuqis) == 2:
+            self.yaobuqis = []
+            self.last_move_type = self.last_move = "start"
+        if self.end:
+            self.playrecords.winner = self.i+1
+            #记录rl_record
+            if self.playrecords.winner == 1:
+                self.q1.append(RLRecord(s=self.rlrecord1.s, a=self.rlrecord1.a, r=1, s_=get_state(self.playrecords, 1)))
+                self.q2.append(RLRecord(s=self.rlrecord2.s, a=self.rlrecord2.a, r=-1, s_=get_state(self.playrecords, 2)))
+                self.q3.append(RLRecord(s=self.rlrecord3.s, a=self.rlrecord3.a, r=-1, s_=get_state(self.playrecords, 3)))
+            elif self.playrecords.winner == 2:
+                self.q1.append(RLRecord(s=self.rlrecord1.s, a=self.rlrecord1.a, r=-1, s_=get_state(self.playrecords, 1)))
+                self.q2.append(RLRecord(s=self.rlrecord2.s, a=self.rlrecord2.a, r=1, s_=get_state(self.playrecords, 2)))
+                self.q3.append(RLRecord(s=self.rlrecord3.s, a=self.rlrecord3.a, r=-1, s_=get_state(self.playrecords, 3)))
+            else:
+                self.q1.append(RLRecord(s=self.rlrecord1.s, a=self.rlrecord1.a, r=-1, s_=get_state(self.playrecords, 1)))
+                self.q2.append(RLRecord(s=self.rlrecord2.s, a=self.rlrecord2.a, r=-1, s_=get_state(self.playrecords, 2)))
+                self.q3.append(RLRecord(s=self.rlrecord3.s, a=self.rlrecord3.a, r=1, s_=get_state(self.playrecords, 3)))
+            return self.end
+            
+        self.i = self.i + 1
+        
         #一轮结束
-        self.playround = self.playround + 1
-        self.i = 0 
-        return self.playrecords.winner, self.end
+        if self.i > 2:
+            self.playround = self.playround + 1
+            print("================ " + str(self.playround) + " ================")
+            self.i = 0 
+        
+        return self.end
             
 ############################################
 #              扑克牌相关类                 #
@@ -436,7 +491,6 @@ class Player(object):
     def play(self, last_move_type, last_move, playrecords, action):
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, self.model, action)
-        print(self.next_move[0].__dict__)
         #记录
         end = self.record_move(playrecords)
         #展示
