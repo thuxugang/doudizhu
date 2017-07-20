@@ -13,13 +13,12 @@ import game.actions as actions
 ############################################
 #               LR接口类                   #
 ############################################
-class Agent(object):
+class Agents(object):
     """
-    只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
+    可以同时兼容训练3个
     """
-    def __init__(self, player=1, models=["rl","random","random"]):
+    def __init__(self, models=["rl","rl","rl"]):
         self.game = None
-        self.player = player
         self.models = models
         self.actions_lookuptable = actions.action_dict
         self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
@@ -30,7 +29,23 @@ class Agent(object):
     def reset(self):
         self.game = Game(self.models)
         self.game.game_start()
-        return get_state(self.game.playrecords, self.player)
+        
+        self.agent1 = Agent(player=1, game=self.game, actions_lookuptable=self.actions_lookuptable)
+        self.agent2 = Agent(player=2, game=self.game, actions_lookuptable=self.actions_lookuptable)
+        self.agent3 = Agent(player=3, game=self.game, actions_lookuptable=self.actions_lookuptable)
+            
+        return get_state(self.game.playrecords, 1), get_state(self.game.playrecords, 2), get_state(self.game.playrecords, 3)
+    
+    
+class Agent(object):
+    """
+    每一个player类
+    """
+    def __init__(self, player=1,  game=None, actions_lookuptable=None):
+        self.game = game
+        self.player = player
+        self.actions_lookuptable = actions_lookuptable
+        self.actions = []
     
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
@@ -53,18 +68,18 @@ class Agent(object):
 
 #rl
 if __name__=="__main__":
-    agent = Agent()
-    s = agent.reset()
+    agents = Agents()
+    s1, s2, s3 = agents.reset()
     done = False
     while(not done):
-        print(agent.game.get_record().cards_left1)
-        actions = agent.get_actions_space() #如果actions为[]，step()
+        print(agents.game.get_record().cards_left1)
+        actions = agents.agent1.get_actions_space()
         #GY的RL程序
-        s_, r, done = agent.step(action_id=0)
-        print(agent.game.get_record().cards_left1)
-        print(agent.game.get_record().cards_left2)
-        print(agent.game.get_record().cards_left3)
-        print(agent.game.get_record().records)
+        s_, r, done = agents.agent1.step(action_id=0)
+        print(agents.game.get_record().cards_left1)
+        print(agents.game.get_record().cards_left2)
+        print(agents.game.get_record().cards_left3)
+        print(agents.game.get_record().records)
         print("====================")       
         #raw_input("")
         s = s_
