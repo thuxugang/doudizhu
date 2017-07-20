@@ -4,34 +4,34 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
+from __future__ import print_function
 import numpy as np
-
  
 #展示扑克函数
 def card_show(cards, info, n):
     
     #扑克牌记录类展示
     if n == 1:
-        print info
+        print(info)
         names = []
         for i in cards:
             names.append(i.name+i.color)
-        print names    
+        print(names)  
     #Moves展示
     elif n == 2:
         if len(cards) == 0:
             return 0
-        print info
+        print(info)
         moves = []
         for i in cards:
             names = []
             for j in i:
                 names.append(j.name+j.color)
             moves.append(names)
-        print moves    
+        print(moves)    
     #record展示
     elif n == 3:
-        print info
+        print(info)
         names = []
         for i in cards:
             tmp = []
@@ -45,7 +45,7 @@ def card_show(cards, info, n):
             except:
                 tmp.append(i[1])
             names.append(tmp)
-        print names
+        print(names)
        
 
 #在Player的next_moves中选择出牌方法
@@ -54,7 +54,9 @@ def choose(next_move_types, next_moves, last_move_type, model, action):
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
     elif model == "rl":
-        if len(action[0]) == 0:
+        if len(action[3]) == 0:
+            return "buyao", []
+        elif action[3][action[2]] == 429:
             return "buyao", []
         else:
             return action[0][action[2]], action[1][action[2]] 

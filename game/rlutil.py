@@ -4,8 +4,9 @@ Created on Thu Jul 13 21:55:58 2017
 
 @author: XuGang
 """
+from __future__ import print_function
 import numpy as np   
-    
+
 ############################################
 #                   LR相关                 #
 ############################################   
