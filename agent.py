@@ -22,7 +22,7 @@ class Agent(object):
         self.player = player
         self.models = models
         self.actions_lookuptable = actions.action_dict
-        self.dim_actions = len(self.actions_lookuptable) + 1 #不要
+        self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
         self.dim_states = 30 + 3
         
         self.actions = []

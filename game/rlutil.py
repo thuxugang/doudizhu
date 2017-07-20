@@ -48,6 +48,8 @@ def get_actions(next_moves, actions_lookuptable, game):
     197-352: 三带2，先遍历111.22,111.33,一直到131313.1212
     353-366: 炸弹，1111-13131313，加上王炸
     367-402: 先考虑5个的顺子，按照顺子开头从小到达进行编码，共计8+7+..+1=36
+    430: yaobuqi
+    429: buyao
     """
     actions = []
     for cards in next_moves:
@@ -57,9 +59,13 @@ def get_actions(next_moves, actions_lookuptable, game):
         key.sort()
         actions.append(actions_lookuptable[str(key)])
     
-    #加入不出
-    if game.last_move != "start":
+    #yaobuqi
+    if len(actions) == 0:
+        actions.append(430)
+    #buyao
+    elif game.last_move != "start":
         actions.append(429)
+        
     return actions
 
         

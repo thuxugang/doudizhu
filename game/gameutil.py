@@ -54,10 +54,11 @@ def choose(next_move_types, next_moves, last_move_type, model, action):
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
     elif model == "rl":
-        if len(action[3]) == 0:
+        print(action[3])
+        if action[3][action[2]] == 429:
             return "buyao", []
-        elif action[3][action[2]] == 429:
-            return "buyao", []
+        elif action[3][action[2]] == 430:
+            return "yaobuqi", []
         else:
             return action[0][action[2]], action[1][action[2]] 
         
