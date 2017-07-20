@@ -55,12 +55,11 @@ class Agent(object):
         action = [self.next_move_types, self.next_moves, action_id, self.actions]
         rl_record = RLRecord(s=s, a=self.actions[action_id])
         done = self.game.play(rl_record, action=action)
-
         return  done
 
 #rl
 if __name__=="__main__":
-    agents = Agents(models=["random","random","random"])
+    agents = Agents(models=["rl","rl","rl"])
     agents.reset()
     done = False
     while(True):
