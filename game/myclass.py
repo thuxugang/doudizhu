@@ -96,6 +96,7 @@ class Game(object):
             self.rlrecord3 = rl_record            
                 
         self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
+        
         if self.yaobuqi:
             self.yaobuqis.append(self.i)
         else:
