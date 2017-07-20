@@ -12,15 +12,17 @@ import game.actions as actions
 ############################################
 #               LR接口类                   #
 ############################################
-class AgentGY(object):
-    
+class Agent(object):
+    """
+    只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
+    """
     def __init__(self, player=1, models=["rl","random","random"]):
         self.game = None
         self.player = player
         self.models = models
         self.actions_lookuptable = actions.action_dict
         self.dim_actions = len(self.actions_lookuptable) + 1 #不要
-        self.dim_states = 30
+        self.dim_states = 30 + 3
         
     def reset(self):
         self.game = Game(self.models)
@@ -32,27 +34,35 @@ class AgentGY(object):
         return get_actions(self.next_moves, self.actions_lookuptable, self.game)
     
     #传入actions的id
-    def step(self, action_id):
+    def step(self, action_id=0):
         action = [self.next_move_types, self.next_moves, action_id]
-        self.game.get_next_move(action=action)
+        winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
-        if self.game.playrecords.winner == 0:
+        if winner == 0:
             reward = 0
-        elif self.game.playrecords.winner == self.player:
+        elif winner == self.player:
             reward = 1
         else:
             reward = -1
-        return  new_state, reward, self.game.end
+        return  new_state, reward, done
 
 #rl
 if __name__=="__main__":
-    agent = AgentGY()
+    agent = Agent()
     s = agent.reset()
-    print agent.game.get_record().cards_left1
-    actions = agent.get_actions_space()
-    s_, r, done = agent.step(0)
-    print agent.game.get_record().cards_left1
-    print agent.game.get_record().records
+    done = False
+    while(not done):
+        print agent.game.get_record().cards_left1
+        actions = agent.get_actions_space()
+        s_, r, done = agent.step(action_id=0)
+        print agent.game.get_record().cards_left1
+        print agent.game.get_record().cards_left2
+        print agent.game.get_record().cards_left3
+        print agent.game.get_record().records
+        print "===================="        
+        #raw_input("")
+        s = s_
+
 
     

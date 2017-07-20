@@ -5,7 +5,6 @@ Created on Thu Jul 13 21:55:58 2017
 @author: XuGang
 """
 from gameutil import card_show, choose, game_init
-import jsonpickle
 
 ############################################
 #                 游戏类                   #
@@ -54,22 +53,26 @@ class Game(object):
     
     #游戏进行    
     def get_next_move(self, action):
-        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
-        if self.yaobuqi:
-            self.yaobuqis.append(self.i)
-        else:
-            self.yaobuqis = []
-        #都要不起
-        if len(self.yaobuqis) == 2:
-            self.yaobuqis = []
-            self.last_move_type = self.last_move = "start"
-        if self.end:
-            self.playrecords.winner = self.i+1
-        self.i = self.i + 1
+        while(self.i <= 2):
+            if self.i != 0:
+                self.get_next_moves()
+            self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
+            if self.yaobuqi:
+                self.yaobuqis.append(self.i)
+            else:
+                self.yaobuqis = []
+            #都要不起
+            if len(self.yaobuqis) == 2:
+                self.yaobuqis = []
+                self.last_move_type = self.last_move = "start"
+            if self.end:
+                self.playrecords.winner = self.i+1
+                break
+            self.i = self.i + 1
         #一轮结束
-        if self.i > 2:
-            self.playround = self.playround + 1
-            self.i = 0 
+        self.playround = self.playround + 1
+        self.i = 0 
+        return self.playrecords.winner, self.end
             
 ############################################
 #              扑克牌相关类                 #
