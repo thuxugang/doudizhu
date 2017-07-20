@@ -54,7 +54,6 @@ def choose(next_move_types, next_moves, last_move_type, model, action):
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
     elif model == "rl":
-        print(action[3])
         if action[3][action[2]] == 429:
             return "buyao", []
         elif action[3][action[2]] == 430:
