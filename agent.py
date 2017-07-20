@@ -53,14 +53,15 @@ if __name__=="__main__":
     s = agent.reset()
     done = False
     while(not done):
-        print agent.game.get_record().cards_left1
-        actions = agent.get_actions_space()
+        #print agent.game.get_record().cards_left1
+        actions = agent.get_actions_space() #如果actions为[]，step()
+        #GY的RL程序
         s_, r, done = agent.step(action_id=0)
-        print agent.game.get_record().cards_left1
-        print agent.game.get_record().cards_left2
-        print agent.game.get_record().cards_left3
-        print agent.game.get_record().records
-        print "===================="        
+        #print agent.game.get_record().cards_left1
+        #print agent.game.get_record().cards_left2
+        #print agent.game.get_record().cards_left3
+        #print agent.game.get_record().records
+        #print "===================="        
         #raw_input("")
         s = s_
 
