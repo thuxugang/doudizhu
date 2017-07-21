@@ -13,5 +13,8 @@ deecamp斗地主
 ## rl分支
 模仿OpenAI，提供了可以结合RL的程序引擎，可以选择对手为random或规则或其他RL，但是训练时只能训练一个且为player 1
 
+## multi-rl分支
+模仿OpenAI，提供了可以结合RL的程序引擎，可以同时训练多个rl player
+
 ## contributor
 thuxugang
