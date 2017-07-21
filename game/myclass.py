@@ -127,7 +127,7 @@ class Game(object):
         #一轮结束
         if self.i > 2:
             self.playround = self.playround + 1
-            print("================ " + str(self.playround) + " ================")
+            #print("================ " + str(self.playround) + " ================")
             self.i = 0 
         
         return self.end

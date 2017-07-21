@@ -64,30 +64,37 @@ if __name__=="__main__":
     agent = Agent(models=["rl","rl","rl"])
     agent.reset()
     done = False
+    d1 = d2 = d3 = []
     while(True):
         s, actions = agent.get_actions_space(player=1)
         #choose action_id
         done = agent.step(player=1, action_id=0)
+        print("player1",len(d1), len(d2), len(d3)) 
         if done:
             break
         
         s, actions = agent.get_actions_space(player=2)
         #choose action_id
         done = agent.step(player=2, action_id=0)
+        print("player2",len(d1), len(d2), len(d3)) 
         if done:
             break
 
         s, actions = agent.get_actions_space(player=3)
         #choose action_id
         done = agent.step(player=3, action_id=0)
+        print("player3",len(d1), len(d2), len(d3)) 
         if done:
             break        
             
         #每轮更新方法[-1],返回为LR记录类对象列表
         d1, d2, d3 = agent.get_training_data()
+        print(len(d1), len(d2), len(d3))
+        print("=====================================")
         
     #回合更新方法，返回为LR记录类对象列表
     d1, d2, d3 = agent.get_training_data()
+    print(len(d1), len(d2), len(d3))
     winner = agent.game.playrecords.winner
     
     

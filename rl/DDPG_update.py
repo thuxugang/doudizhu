@@ -123,7 +123,7 @@ a_dim = env.action_space.shape[0]
 a_bound = env.action_space.high
 
 ddpg = DDPG(a_dim, s_dim, a_bound)
-
+"""
 var = 3  # control exploration
 for i in range(MAX_EPISODES):
     s = env.reset()
@@ -149,3 +149,4 @@ for i in range(MAX_EPISODES):
             print('Episode:', i, ' Reward: %i' % int(ep_reward), 'Explore: %.2f' % var, )
             if ep_reward > -1000:RENDER = True
             break
+"""
