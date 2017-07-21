@@ -58,40 +58,65 @@ class Agent(object):
      
 #rl
 if __name__=="__main__":
-    agent = Agent(models=["random","random","random"])
+    agent = Agent(models=["rl","rl","rl"])
     agent.reset()
     done = False
+    d3 = None
+    s = None
+    s_ = None
     while(True):
-        print(agent.game.get_record().cards_left1)
+        #print(agent.game.get_record().cards_left1)
         actions = agent.get_actions_space(player=1)
         #choose action_id
         done = agent.step(player=1, action_id=0)
+        #print(actions[0])
         if done:
             break
-        print(agent.game.get_record().cards_left1)
-        print(agent.game.get_record().cards_left2)
-        print(agent.game.get_record().cards_left3)
-        print(agent.game.get_record().records)
-
+        #print(agent.game.get_record().cards_left1)
+        #print(agent.game.get_record().cards_left2)
+        #print(agent.game.get_record().cards_left3)
+        #print(agent.game.get_record().records)
+        #if d1 != None:
+        #    s = d1[-1].s
+        #    s_ = d1[-1].s_
+        
+        #print(agent.game.get_record().cards_left2)
         actions = agent.get_actions_space(player=2)
         #choose action_id
         done = agent.step(player=2, action_id=0)
+        #print(actions[0])
         if done:
             break
+        #print(agent.game.get_record().cards_left2)
+        #print(agent.game.get_record().cards_left3)
+        #print(agent.game.get_record().cards_left1)
+        #print(agent.game.get_record().records)
+        #if d2 != None:
+        #    s = d2[-1].s
+        #    s_ = d2[-1].s_
+        
+        print(agent.game.get_record().cards_left3)
         actions = agent.get_actions_space(player=3)
         #choose action_id
         done = agent.step(player=3, action_id=0)
+        print(actions[0])
         if done:
             break        
-        #print("====================")  
-    
+        print(agent.game.get_record().cards_left3)
+        print(agent.game.get_record().cards_left1)
+        print(agent.game.get_record().cards_left2)
+        print(agent.game.get_record().records)
+        if d3 != None:
+            s = d3[-1].s
+            s_ = d3[-1].s_
+            
         #每轮更新方法[-1],返回为LR记录类对象列表
         d1, d2, d3 = agent.get_training_data()
-        print(len(d1),len(d2),len(d3))
+        #print(len(d1),len(d2),len(d3))
         
     #回合更新方法，返回为LR记录类对象列表
     d1, d2, d3 = agent.get_training_data()
-    print(len(d1),len(d2),len(d3))
-
-
-    
+    #print(len(d1),len(d2),len(d3))
+    winner = agent.game.playrecords.winner
+    s = d3[-1].s
+    s_ = d3[-1].s_
