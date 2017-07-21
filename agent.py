@@ -31,13 +31,16 @@ class Agent(object):
     def get_actions_space(self, player):
         if player == 1:
             self.s1 = get_state(self.game.playrecords, player)
+            s = self.s1
         elif player == 2:
             self.s2 = get_state(self.game.playrecords, player)
+            s = self.s2
         else:
             self.s3 = get_state(self.game.playrecords, player)
+            s = self.s3
         self.next_move_types, self.next_moves = self.game.get_next_moves()
         self.actions = get_actions(self.next_moves, self.actions_lookuptable, self.game)
-        return self.actions
+        return s, self.actions
         
     #传入actions的id
     def step(self, player, action_id=0):
@@ -62,19 +65,19 @@ if __name__=="__main__":
     agent.reset()
     done = False
     while(True):
-        actions = agent.get_actions_space(player=1)
+        s, actions = agent.get_actions_space(player=1)
         #choose action_id
         done = agent.step(player=1, action_id=0)
         if done:
             break
         
-        actions = agent.get_actions_space(player=2)
+        s, actions = agent.get_actions_space(player=2)
         #choose action_id
         done = agent.step(player=2, action_id=0)
         if done:
             break
 
-        actions = agent.get_actions_space(player=3)
+        s, actions = agent.get_actions_space(player=3)
         #choose action_id
         done = agent.step(player=3, action_id=0)
         if done:
