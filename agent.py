@@ -62,33 +62,36 @@ if __name__=="__main__":
     agent.reset()
     done = False
     while(True):
-        #print(agent.game.get_record().cards_left1)
+        print(agent.game.get_record().cards_left1)
         actions = agent.get_actions_space(player=1)
-        #GY的RL程序
+        #choose action_id
         done = agent.step(player=1, action_id=0)
         if done:
             break
-        #print(agent.game.get_record().cards_left1)
-        #print(agent.game.get_record().cards_left2)
-        #print(agent.game.get_record().cards_left3)
-        #print(agent.game.get_record().records)
+        print(agent.game.get_record().cards_left1)
+        print(agent.game.get_record().cards_left2)
+        print(agent.game.get_record().cards_left3)
+        print(agent.game.get_record().records)
 
         actions = agent.get_actions_space(player=2)
+        #choose action_id
         done = agent.step(player=2, action_id=0)
         if done:
             break
         actions = agent.get_actions_space(player=3)
+        #choose action_id
         done = agent.step(player=3, action_id=0)
         if done:
             break        
         #print("====================")  
     
-        #返回为LR记录类对象列表
+        #每轮更新方法[-1],返回为LR记录类对象列表
         d1, d2, d3 = agent.get_training_data()
-        #print(len(d1),len(d2),len(d3))
-    #返回为LR记录类对象列表
+        print(len(d1),len(d2),len(d3))
+        
+    #回合更新方法，返回为LR记录类对象列表
     d1, d2, d3 = agent.get_training_data()
-    #print(len(d1),len(d2),len(d3))
+    print(len(d1),len(d2),len(d3))
 
 
     
