@@ -13,7 +13,7 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 100000
+    num_epochs = 30000
     agent = Agent(models=["rl","random","random"])
     RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
                   learning_rate=0.01,
@@ -47,9 +47,9 @@ if __name__=="__main__":
             RL.store_transition(s, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
-                loss, lr = RL.learn()
+                loss = RL.learn()
                 if step%100 == 0:
-                    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate, ", lr: ", lr)
+                    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
 
             # swap observation
             s = s_

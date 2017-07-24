@@ -46,11 +46,7 @@ class DeepQNetwork:
         self.n_l1 = 512
         self.n_l2 = 512
         
-        self.current_epoch = tf.Variable(0)
-        self.lr = tf.train.exponential_decay(learning_rate,  
-                                               self.current_epoch,  
-                                               decay_steps=num_epochs,  
-                                               decay_rate=0.01)
+        self.lr = learning_rate
        
         # total learning step
         self.learn_step_counter = 0
@@ -123,7 +119,7 @@ class DeepQNetwork:
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval_wrt_a, name='TD_error'))
         with tf.variable_scope('train'):
-            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss, global_step=self.current_epoch)
+            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
 
     def store_transition(self, s, a, r, s_):
         if not hasattr(self, 'memory_counter'):
@@ -142,7 +138,7 @@ class DeepQNetwork:
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
             action = np.argmax(actions_value*actions_ont_hot)
-            if action == 0.0:
+            if np.max(actions_value*actions_ont_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))
                 action = actions[action_id]                
             else:
@@ -171,8 +167,8 @@ class DeepQNetwork:
             sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
         batch_memory = self.memory[sample_index, :]
 
-        _, cost, lr = self.sess.run(
-            [self._train_op, self.loss, self.lr],
+        _, cost = self.sess.run(
+            [self._train_op, self.loss],
             feed_dict={
                 self.s: batch_memory[:, :self.n_features],
                 self.a: batch_memory[:, self.n_features],
@@ -186,7 +182,7 @@ class DeepQNetwork:
         self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
         
-        return cost, lr
+        return cost
 
     def plot_cost(self):
         import matplotlib.pyplot as plt
