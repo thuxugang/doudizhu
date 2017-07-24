@@ -5,9 +5,10 @@ Created on Thu Jul 13 21:55:58 2017
 @author: XuGang
 """
 from __future__ import print_function
-from game.myclass import Game
-from game.rlutil import get_state, get_actions
-import game.actions as actions
+from __future__ import absolute_import
+from .myclass import Game
+from .rlutil import get_state, get_actions
+from .actions import  action_dict
 
 
 ############################################
@@ -21,7 +22,7 @@ class Agent(object):
         self.game = None
         self.player = player
         self.models = models
-        self.actions_lookuptable = actions.action_dict
+        self.actions_lookuptable = action_dict
         self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
         self.dim_states = 30 + 3
         
@@ -68,6 +69,7 @@ if __name__=="__main__":
         print("====================")       
         #raw_input("")
         s = s_
+        print(r)
 
 
     
