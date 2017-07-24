@@ -13,7 +13,7 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 30000
+    num_epochs = 500000
     agent = Agent(models=["rl","random","random"])
     RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
                   learning_rate=0.01,
@@ -29,6 +29,7 @@ if __name__=="__main__":
         # initial observation
         s = agent.reset()
         done = False
+        loss = 0
         while(not done):
             
             # RL choose action based on observation
@@ -40,7 +41,7 @@ if __name__=="__main__":
                 actions_ont_hot[actions[k]] = 1
                 
             action, action_id = RL.choose_action(s, actions_ont_hot, actions)
-
+            
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
 
@@ -48,14 +49,17 @@ if __name__=="__main__":
 
             if (step > 200) and (step % 5 == 0):
                 loss = RL.learn()
-                if step%100 == 0:
-                    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
+                #if step%100 == 0:
+                #    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
 
             # swap observation
             s = s_
 
             step += 1
-            
+
+        if episode%2000 == 0:
+            print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
+                
         if r == 1:
             winners.append(1)
         else:
