@@ -40,6 +40,7 @@ if __name__=="__main__":
             for k in range(len(actions)):
                 actions_ont_hot[actions[k]] = 1
                 
+                
             action, action_id = RL.choose_action(s, actions_ont_hot, actions)
             
             # RL take action and get next observation and reward

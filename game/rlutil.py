@@ -11,7 +11,7 @@ import numpy as np
 #                   LR相关                 #
 ############################################   
 def get_state(playrecords, player):
-    state = np.zeros(33).astype("int")
+    state = np.zeros(33+431).astype("int") #33+dim_action
     #手牌
     if player == 1:
         cards_left = playrecords.cards_left1
@@ -67,6 +67,18 @@ def get_actions(next_moves, actions_lookuptable, game):
         actions.append(429)
         
     return actions
+
+#结合state和可以出的actions作为新的state    
+def combine(s, a):
+    for i in a:
+        s[33+i] = 1
+    return s
+    
+    
+    
+    
+    
+    
 
         
     
