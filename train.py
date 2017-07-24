@@ -13,8 +13,9 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
+    num_epochs = 100000
     agent = Agent(models=["rl","random","random"])
-    RL = DeepQNetwork(agent.dim_actions, agent.dim_states,
+    RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
                   learning_rate=0.01,
                   reward_decay=0.9,
                   e_greedy=0.9,
@@ -24,7 +25,7 @@ if __name__=="__main__":
                   )
     winners = []
     win_rate = 0
-    for episode in range(100000):
+    for episode in range(num_epochs):
         # initial observation
         s = agent.reset()
         done = False
@@ -46,9 +47,9 @@ if __name__=="__main__":
             RL.store_transition(s, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
-                loss = RL.learn()
+                loss, lr = RL.learn()
                 if step%100 == 0:
-                    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
+                    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate, ", lr: ", lr)
 
             # swap observation
             s = s_

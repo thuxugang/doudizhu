@@ -23,6 +23,7 @@ class DeepQNetwork:
             self,
             n_actions,
             n_features,
+            num_epochs,
             learning_rate=0.01,
             reward_decay=0.9,
             e_greedy=0.9,
@@ -34,7 +35,6 @@ class DeepQNetwork:
     ):
         self.n_actions = n_actions
         self.n_features = n_features
-        self.lr = learning_rate
         self.gamma = reward_decay
         self.epsilon_max = e_greedy
         self.replace_target_iter = replace_target_iter
@@ -46,6 +46,12 @@ class DeepQNetwork:
         self.n_l1 = 512
         self.n_l2 = 512
         
+        self.current_epoch = tf.Variable(0)
+        self.lr = tf.train.exponential_decay(learning_rate,  
+                                               self.current_epoch,  
+                                               decay_steps=num_epochs,  
+                                               decay_rate=0.01)
+       
         # total learning step
         self.learn_step_counter = 0
 
@@ -117,7 +123,7 @@ class DeepQNetwork:
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval_wrt_a, name='TD_error'))
         with tf.variable_scope('train'):
-            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
+            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss, global_step=self.current_epoch)
 
     def store_transition(self, s, a, r, s_):
         if not hasattr(self, 'memory_counter'):
@@ -165,22 +171,22 @@ class DeepQNetwork:
             sample_index = np.random.choice(self.memory_counter, size=self.batch_size)
         batch_memory = self.memory[sample_index, :]
 
-        _, cost = self.sess.run(
-            [self._train_op, self.loss],
+        _, cost, lr = self.sess.run(
+            [self._train_op, self.loss, self.lr],
             feed_dict={
                 self.s: batch_memory[:, :self.n_features],
                 self.a: batch_memory[:, self.n_features],
                 self.r: batch_memory[:, self.n_features + 1],
                 self.s_: batch_memory[:, -self.n_features:],
             })
-
+    
         self.cost_his.append(cost)
 
         # increasing epsilon
         self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
         
-        return cost
+        return cost, lr
 
     def plot_cost(self):
         import matplotlib.pyplot as plt

@@ -435,7 +435,13 @@ class Player(object):
     #出牌
     def play(self, last_move_type, last_move, playrecords, action):
         #在next_moves中选择出牌方法
-        self.next_move_type, self.next_move = choose(self.next_move_types, self.next_moves, last_move_type, self.model, action)
+        self.next_move_type, self.next_move = choose(next_move_types=self.next_move_types, 
+                                                     next_moves=self.next_moves, 
+                                                     last_move_type=last_move_type, 
+                                                     last_move=last_move, 
+                                                     cards_left=self.cards_left, 
+                                                     model=self.model, 
+                                                     action=action)
         #记录
         end = self.record_move(playrecords)
         #展示

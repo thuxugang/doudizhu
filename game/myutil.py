@@ -2,55 +2,40 @@
 """
 Created on Thu Jul 13 21:55:58 2017
 
-@author: XuGang
+@author: ChenXiao XuGang
 """
-from __future__ import print_function
 import numpy as np
+import Queue
+import  copy
+#from myclass import Moves
+import random
 
-    
-#发牌
-def game_init(players, playrecords, cards):
-    
-    #洗牌
-    np.random.shuffle(cards.cards)
-    #排序
-    p1_cards = cards.cards[:18]
-    p1_cards.sort(key=lambda x: x.rank)
-    p2_cards = cards.cards[18:36]
-    p2_cards.sort(key=lambda x: x.rank)
-    p3_cards = cards.cards[36:]
-    p3_cards.sort(key=lambda x: x.rank)
-    players[0].cards_left = playrecords.cards_left1 = p1_cards
-    players[1].cards_left = playrecords.cards_left2 = p2_cards
-    players[2].cards_left = playrecords.cards_left3 = p3_cards    
-    
-    
-    
+
 #展示扑克函数
 def card_show(cards, info, n):
     
     #扑克牌记录类展示
     if n == 1:
-        print(info)
+        print info
         names = []
         for i in cards:
             names.append(i.name+i.color)
-        print(names)  
+        print names    
     #Moves展示
     elif n == 2:
         if len(cards) == 0:
             return 0
-        print(info)
+        print info
         moves = []
         for i in cards:
             names = []
             for j in i:
                 names.append(j.name+j.color)
             moves.append(names)
-        print(moves)    
+        print moves    
     #record展示
     elif n == 3:
-        print(info)
+        print info
         names = []
         for i in cards:
             tmp = []
@@ -64,83 +49,29 @@ def card_show(cards, info, n):
             except:
                 tmp.append(i[1])
             names.append(tmp)
-        print(names)
+        print names
        
 
 #在Player的next_moves中选择出牌方法
-def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, action):
-    
-    if model == "random":
-        return choose_random(next_move_types, next_moves, last_move_type)
-    elif model == "min":
-        return choose_min(next_move_types, next_moves, last_move_type)
-    elif model == "cxgz":
-        return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-    elif model == "rl":
-        if action[3][action[2]] == 429:
-            return "buyao", []
-        elif action[3][action[2]] == 430:
-            return "yaobuqi", []
-        else:
-            return action[0][action[2]], action[1][action[2]] 
-
-############################################
-#                  min                     #
-############################################
-def choose_min(next_move_types, next_moves, last_move_type):
-    #要不起
-    if len(next_moves) == 0:
-        return "yaobuqi", []
-    else:
-        #start不能不要
-        if last_move_type == "start":
-            r_max = len(next_moves)
-            r = np.random.randint(0,r_max)
-        else:
-            r_max = len(next_moves)+1
-            r = 0
-        #添加不要
-        if r == len(next_moves):
-            return "buyao", []
-        
-    return next_move_types[r], next_moves[r] 
-        
-############################################
-#                 random                    #
-############################################
-def choose_random(next_move_types, next_moves, last_move_type):
-    #要不起
-    if len(next_moves) == 0:
-        return "yaobuqi", []
-    else:
-        #start不能不要
-        if last_move_type == "start":
-            r_max = len(next_moves)
-        else:
-            r_max = len(next_moves)+1
-        r = np.random.randint(0,r_max)
-        #添加不要
-        if r == len(next_moves):
-            return "buyao", []
-        
-    return next_move_types[r], next_moves[r] 
-
-
-
-############################################
-#                 CX规则                   #
-############################################
-def choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model):
+def choose(next_move_types, next_moves, last_move_type,cards_left,last_move , model):
     '''
     开局start 的时候打牌策略
     '''
     if last_move_type=="start":
+
         return choose_start_policy(next_move_types, next_moves, last_move_type,cards_left,last_move)
+        #return get_card_CombInfo(cards_left)
+    elif last_move_type=="buyao" or last_move_type=="yaobuqi":
+        pass
     else:
         '''
         上家出牌时候的打牌策略
         '''
         return choose_orplay_policy(cards_left, last_move_type,last_move,next_move_types, next_moves)
+    
+
+     
+
 
 '''
 #对出牌类型进行排序
@@ -312,7 +243,7 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                 next_moves_type.append("san_dai_er")
     # 出炸弹
     elif last_move_type == "bomb":
-        for move in bomb:
+        for move in self.bomb:
             # 比last大
             if move[0].bigger_than(last_move[0]):
                 next_moves.append(move)
@@ -327,8 +258,7 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                     next_moves.append(move)
                     next_moves_type.append("shunzi")
     else:
-        #print("last_move_type_wrong")
-        pass
+        print "last_move_type_wrong"
 
     # 除了bomb,都可以出炸
     if last_move_type != "bomb":
@@ -346,7 +276,9 @@ def choose_start_chupai(cards_left,last_move_type,last_move):
 def choose_start_policy(next_move_types, next_moves, last_move_type,cards_left,last_move):
     #要不起
 
-    #card_show(next_moves,'choose_start_policy：：next moves: ',2)
+    chupai_order_dict={"dan":0, "dui":1, "san":3, "san_dai_yi":2, "san_dai_er":4, "shunzi":5,"bomb":6}
+
+    card_show(next_moves,'choose_start_policy：：next moves: ',2)
     '''
         如果是start ，那么就出最小的move_type
         如果上家出牌的话，下家的牌的类型和上家是一样的
@@ -356,13 +288,13 @@ def choose_start_policy(next_move_types, next_moves, last_move_type,cards_left,l
     '''
 
     poss_types,poss_moves =get_card_CombInfo(cards_left,last_move_type,last_move)
-    #card_show(poss_moves,"choose_start_policy：：fan hui ka pai",2)
+    card_show(poss_moves,"choose_start_policy：：fan hui ka pai",2)
     #next_move_types_ranks=MoveTypeRank(poss_types)
     #follow_move_type=CheckNextPaiType(next_move_types_ranks)
     follow_move_type=CheckNextPaiType(poss_types)
 
     follow_move=CheckNextPaiValue(poss_types,follow_move_type,poss_moves)
-    #card_show(follow_move, 'choose_start_policy::next move: ', 1)
+    card_show(follow_move, 'choose_start_policy::next move: ', 1)
     return follow_move_type, follow_move
             
 
@@ -376,7 +308,7 @@ def choose_orplay_policy(cards_left, last_move_type,last_move,next_move_types, n
     '''
     poss_types, poss_moves = get_card_CombInfo(cards_left,last_move_type,last_move)
 
-    #card_show(poss_moves,"choose_orplay_policy::posssible move",2)
+    card_show(poss_moves,"choose_orplay_policy::posssible move",2)
 
     '''
         如果上家出牌的话，下家的牌的类型和上家是一样的
@@ -387,13 +319,12 @@ def choose_orplay_policy(cards_left, last_move_type,last_move,next_move_types, n
     follow_move_type = last_move_type
     follow_move = CheckNextPaiValue(poss_types, follow_move_type, poss_moves)
 
-    #print("choose_orplay_policy:: follow_move_type,poss_types", follow_move_type, " ", poss_types)
+    print "choose_orplay_policy:: follow_move_type,poss_types", follow_move_type, " ", poss_types
 
 
     if len(poss_moves) == 0:
         #不拆牌情况下要不起的话，就考虑拆牌
         follow_move = CheckNextPaiValue(next_move_types, follow_move_type, next_moves)
-        #print(next_move_types, follow_move_type, next_moves,follow_move)
         if len(follow_move)==0 or follow_move_type not in poss_types:
             return "yaobuqi", []
             #return "yaobuqi", "yaobuqi"
@@ -435,7 +366,7 @@ def CheckNextPaiType(poss_types_tmp):
         if j == min_idx:
             follow_move_type = i
 
-    #print("CheckNextPaiType：：follow_move_type: ", follow_move_type)
+    print "CheckNextPaiType：：follow_move_type: ", follow_move_type
 
     '''
     rlst0=["dan", "dui", "shunzi", "san"]
@@ -451,11 +382,11 @@ def CheckNextPaiType(poss_types_tmp):
     '''
     #避免每次start都是出单
     if follow_move_type=="dan" and "dui" in poss_types_tmp and "san_dai_yi" in poss_types_tmp:
-        rdx = np.random.randint(0, 2)
+        rdx = random.randint(0, 2)
         blst = ["dan", "dui","san"]
         follow_move_type = blst[rdx]
     elif follow_move_type=="dan" and "dui" in poss_types_tmp:
-        rdx = np.random.randint(0, 1)
+        rdx = random.randint(0, 1)
         clst = ["dan", "dui"]
         follow_move_type = clst[rdx]
 
@@ -493,5 +424,28 @@ def CheckNextPaiValue(next_move_types,follow_move_type,next_moves):
             next_move=[]
     return next_move
 
+
+    
+
+
+
+
+
+
+#发牌
+def game_init(players, playrecords, cards):
+    
+    #洗牌
+    np.random.shuffle(cards.cards)
+    #排序
+    p1_cards = cards.cards[:18]
+    p1_cards.sort(key=lambda x: x.rank)
+    p2_cards = cards.cards[18:36]
+    p2_cards.sort(key=lambda x: x.rank)
+    p3_cards = cards.cards[36:]
+    p3_cards.sort(key=lambda x: x.rank)
+    players[0].cards_left = playrecords.cards_left1 = p1_cards
+    players[1].cards_left = playrecords.cards_left2 = p2_cards
+    players[2].cards_left = playrecords.cards_left3 = p3_cards
 
 
