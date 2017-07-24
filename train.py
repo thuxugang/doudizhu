@@ -13,7 +13,7 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    agent = Agent()
+    agent = Agent(models=["rl","random","random"])
     RL = DeepQNetwork(agent.dim_actions, agent.dim_states,
                   learning_rate=0.01,
                   reward_decay=0.9,

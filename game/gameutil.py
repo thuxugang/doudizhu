@@ -53,6 +53,8 @@ def choose(next_move_types, next_moves, last_move_type, model, action):
     
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
+    elif model == "min":
+        return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "rl":
         if action[3][action[2]] == 429:
             return "buyao", []
@@ -60,6 +62,25 @@ def choose(next_move_types, next_moves, last_move_type, model, action):
             return "yaobuqi", []
         else:
             return action[0][action[2]], action[1][action[2]] 
+
+#min
+def choose_min(next_move_types, next_moves, last_move_type):
+    #要不起
+    if len(next_moves) == 0:
+        return "yaobuqi", []
+    else:
+        #start不能不要
+        if last_move_type == "start":
+            r_max = len(next_moves)
+            r = np.random.randint(0,r_max)
+        else:
+            r_max = len(next_moves)+1
+            r = 0
+        #添加不要
+        if r == len(next_moves):
+            return "buyao", []
+        
+    return next_move_types[r], next_moves[r] 
         
 #random
 def choose_random(next_move_types, next_moves, last_move_type):

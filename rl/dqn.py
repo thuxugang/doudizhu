@@ -13,8 +13,8 @@ gym: 0.7.3
 import numpy as np
 import tensorflow as tf
 
-np.random.seed(1)
-tf.set_random_seed(1)
+#np.random.seed(1)
+#tf.set_random_seed(1)
 
 
 # Deep Q Network off-policy
@@ -54,8 +54,11 @@ class DeepQNetwork:
 
         # consist of [target_net, evaluate_net]
         self._build_net()
-
-        self.sess = tf.Session()
+        
+        #accelerate MLP
+        config = tf.ConfigProto()
+        config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+        self.sess = tf.Session(config=config)
 
         if output_graph:
             # $ tensorboard --logdir=logs
