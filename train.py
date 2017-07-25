@@ -15,16 +15,16 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 100001
-    agent = Agent(models=["rl","cxgz","random"])
+    agent = Agent(models=["rl","cxgz","cxgz"])
     
-    rl_model = "dueling_dqn"
+    rl_model = "dqn"
     
     if rl_model == "dqn":
-        from rl.dqn import DeepQNetwork
+        from rl.dqn_max import DeepQNetwork
         RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.001,
+                      learning_rate=0.01,
                       reward_decay=0.9,
-                      e_greedy=0.95,
+                      e_greedy=0.9,
                       replace_target_iter=200,
                       memory_size=2000,
                       )
@@ -32,7 +32,7 @@ if __name__=="__main__":
     elif rl_model == "double_dqn":
         from rl.double_dqn import DoubleDQN
         RL = DoubleDQN(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.0001,
+                      learning_rate=0.1,
                       reward_decay=0.9,
                       e_greedy=0.9,
                       replace_target_iter=200,
@@ -55,7 +55,7 @@ if __name__=="__main__":
         RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.001,
                       reward_decay=0.9,
-                      e_greedy=0.95,
+                      e_greedy=0.9,
                       replace_target_iter=200,
                       memory_size=2000,
                       dueling=True
@@ -76,20 +76,24 @@ if __name__=="__main__":
             actions = agent.get_actions_space()
             s = combine(s, actions)
             #action to one-hot
-            actions_ont_hot = np.zeros(agent.dim_actions)
+            actions_one_hot = np.zeros(agent.dim_actions)
             for k in range(len(actions)):
-                actions_ont_hot[actions[k]] = 1
+                actions_one_hot[actions[k]] = 1
                 
-                
-            action, action_id = RL.choose_action(s, actions_ont_hot, actions)
+            action, action_id = RL.choose_action(s, actions_one_hot, actions)
             
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
             
             actions_ = agent.get_actions_space_state()
+            #action to one-hot
+            actions_one_hot_ = np.zeros(agent.dim_actions)
+            for k in range(len(actions_)):
+                actions_one_hot_[actions_[k]] = 1
+                
             s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
             
-            RL.store_transition(s, action, r, s_)
+            RL.store_transition(s, actions_one_hot_, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
                 loss = RL.learn()

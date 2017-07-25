@@ -11,6 +11,8 @@ gym: 0.8.0
 import numpy as np
 import tensorflow as tf
 
+tf.set_random_seed(1)
+
 class DoubleDQN:
     def __init__(
             self,

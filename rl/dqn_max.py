@@ -52,7 +52,7 @@ class DeepQNetwork:
         self.learn_step_counter = 0
 
         # initialize zero memory [s, a, r, s_]
-        self.memory = np.zeros((self.memory_size, n_features * 2 + 2))
+        self.memory = np.zeros((self.memory_size, n_features * 2 + 2 + n_actions))
 
         # consist of [target_net, evaluate_net]
         self._build_net()
@@ -94,6 +94,8 @@ class DeepQNetwork:
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')  # input Next State
         self.r = tf.placeholder(tf.float32, [None, ], name='r')  # input Reward
         self.a = tf.placeholder(tf.int32, [None, ], name='a')  # input Action
+        
+        self.action_possible = tf.placeholder(tf.float32, [None, self.n_actions], name='action_possible')  # input Action
 
         # ------------------ build evaluate_net ------------------
         with tf.variable_scope('eval_net'):
@@ -110,7 +112,7 @@ class DeepQNetwork:
             self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
 
         with tf.variable_scope('q_target'):
-            q_target = self.r + self.gamma * tf.reduce_max(self.q_next, axis=1, name='Qmax_s_')    # shape=(None, )
+            q_target = self.r + self.gamma * tf.reduce_max(self.q_next*self.action_possible, axis=1, name='Qmax_s_')    # shape=(None, )
             self.q_target = tf.stop_gradient(q_target)
 
         with tf.variable_scope('q_eval'):
@@ -120,27 +122,26 @@ class DeepQNetwork:
         with tf.variable_scope('loss'):
             self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval_wrt_a, name='TD_error'))
         with tf.variable_scope('train'):
-            self._train_op = tf.train.RMSPropOptimizer(self.lr).minimize(self.loss)
+            self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
 
-    def store_transition(self, s, a, r, s_):
+    def store_transition(self, s, actions_one_hot, a, r, s_):
         if not hasattr(self, 'memory_counter'):
             self.memory_counter = 0
-        transition = np.hstack((s, [a, r], s_))
-        # replace the old memory with new memory
+        transition = np.hstack((s, actions_one_hot, [a, r], s_))
         index = self.memory_counter % self.memory_size
         self.memory[index, :] = transition
         self.memory_counter += 1
     
     #修改
-    def choose_action(self, observation, actions_ont_hot, actions):
+    def choose_action(self, observation, actions_one_hot, actions):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
 
         if np.random.uniform() < self.epsilon:
             # forward feed the observation and get q value for every actions
             actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
-            action = np.argmax(actions_value*actions_ont_hot)
-            if np.max(actions_value*actions_ont_hot) == 0.0:
+            action = np.argmax(actions_value*actions_one_hot)
+            if np.max(actions_value*actions_one_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))
                 action = actions[action_id]                
             else:
@@ -174,9 +175,10 @@ class DeepQNetwork:
             [self._train_op, self.loss],
             feed_dict={
                 self.s: batch_memory[:, :self.n_features],
-                self.a: batch_memory[:, self.n_features],
-                self.r: batch_memory[:, self.n_features + 1],
-                self.s_: batch_memory[:, -self.n_features:],
+                self.action_possible: batch_memory[:, self.n_features:self.n_features+self.n_actions],
+                self.a: batch_memory[:, self.n_features+self.n_actions],
+                self.r: batch_memory[:, self.n_features +self.n_actions+1],
+                self.s_: batch_memory[:, self.n_features +self.n_actions+2:],
             })
     
         self.cost_his.append(cost)
