@@ -11,7 +11,9 @@ deecamp斗地主
 #### 2.访问http://127.0.0.1:6666/ddz
 
 ## rl分支
-模仿OpenAI，提供了可以结合RL的程序引擎，可以选择对手为random或规则或其他RL，但是训练时只能训练一个且为player 1
+模仿OpenAI，提供了可以结合RL的程序引擎，可以选择对手为random或规则或其他RL，但是训练时只能训练一个且为player 1。
+
+rl模型包括DQN、double_dqn、prioritized_dqn和dueling_dqn，具体模型参考https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
 
 ## multi-rl分支
 模仿OpenAI，提供了可以结合RL的程序引擎，可以同时训练多个rl player
