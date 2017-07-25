@@ -184,6 +184,10 @@ class DeepQNetwork:
         
         return cost
 
+    def save_model(self, name, episode):
+        saver = tf.train.Saver() 
+        saver.save(self.sess, "Model/"+name+"_"+str(episode)+".ckpt") 
+        
     def plot_cost(self):
         import matplotlib.pyplot as plt
         plt.plot(np.arange(len(self.cost_his)), self.cost_his)

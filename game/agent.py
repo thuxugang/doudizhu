@@ -7,7 +7,7 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 from .myclass import Game
-from .rlutil import get_state, get_actions
+from .rlutil import get_state, get_actions, combine
 from .actions import  action_dict
 
 
@@ -24,7 +24,7 @@ class Agent(object):
         self.models = models
         self.actions_lookuptable = action_dict
         self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
-        self.dim_states = 30 + 3
+        self.dim_states = 30 + 3 + 431 #431为dim_actions
         
         self.actions = []
         
@@ -37,7 +37,8 @@ class Agent(object):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
         self.actions = get_actions(self.next_moves, self.actions_lookuptable, self.game)
         return self.actions
-
+    
+    #get_actions_space_state不改变参数
     def get_actions_space_state(self):
         next_move_types, next_moves = self.game.get_next_moves()
         self.actions = get_actions(next_moves, self.actions_lookuptable, self.game)
@@ -68,18 +69,18 @@ if __name__=="__main__":
     s = agent.reset()
     done = False
     while(not done):
-        print(agent.game.get_record().cards_left1)
         actions = agent.get_actions_space() #如果actions为[]，step()
+        s = combine(s, actions)
+        print(actions)
         #GY的RL程序
         s_, r, done = agent.step(action_id=0)
-        print(agent.game.get_record().cards_left1)
-        print(agent.game.get_record().cards_left2)
-        print(agent.game.get_record().cards_left3)
-        print(agent.game.get_record().records)
+        
+        actions_ = agent.get_actions_space_state()
+        print(actions_)
+        s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
         print("====================")       
-        #raw_input("")
+        raw_input("")
         s = s_
-        print(r)
 
 
     

@@ -7,6 +7,8 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import absolute_import
 from game.agent import Agent
 from rl.dqn import DeepQNetwork
+from game.rlutil import combine
+
 import numpy as np
 
 #rl
@@ -34,7 +36,7 @@ if __name__=="__main__":
             
             # RL choose action based on observation
             actions = agent.get_actions_space()
-            
+            s = combine(s, actions)
             #action to one-hot
             actions_ont_hot = np.zeros(agent.dim_actions)
             for k in range(len(actions)):
@@ -45,7 +47,10 @@ if __name__=="__main__":
             
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
-
+            
+            actions_ = agent.get_actions_space_state()
+            s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
+            
             RL.store_transition(s, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
@@ -59,6 +64,7 @@ if __name__=="__main__":
             step += 1
 
         if episode%2000 == 0:
+            RL.save_model("dqn", episode)
             print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
                 
         if r == 1:
