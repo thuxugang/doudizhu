@@ -55,18 +55,12 @@ if __name__=="__main__":
 
             if (step > 200) and (step % 5 == 0):
                 loss = RL.learn()
-                #if step%100 == 0:
-                #    print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
 
             # swap observation
             s = s_
 
             step += 1
 
-        if episode%2000 == 0:
-            RL.save_model("dqn", episode)
-            print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
-                
         if r == 1:
             winners.append(1)
         else:
@@ -74,6 +68,12 @@ if __name__=="__main__":
             
         win_rate = np.mean(winners)
 
+        if episode%2000 == 0:
+            #保存模型
+            if episode%10000 == 0 and episode != 0:
+                RL.save_model("dqn", episode)
+            print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
+            
     # end of game
     print('game over')
     RL.plot_cost()
