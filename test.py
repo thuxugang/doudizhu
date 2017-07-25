@@ -6,7 +6,6 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from __future__ import absolute_import
 from game.agent import Agent
-from game.rlutil import combine
 
 import numpy as np
 
@@ -14,17 +13,17 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 100001
+    num_epochs = 10000
     agent = Agent(models=["rl","cxgz","random"])
     
-    rl_model = "dueling_dqn"
+    rl_model = "double_dqn"
     
     if rl_model == "dqn":
         from rl.dqn import DeepQNetwork
         RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.001,
+                      learning_rate=0.01,
                       reward_decay=0.9,
-                      e_greedy=0.95,
+                      e_greedy=0.9,
                       replace_target_iter=200,
                       memory_size=2000,
                       )
@@ -34,10 +33,10 @@ if __name__=="__main__":
         RL = DoubleDQN(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.0001,
                       reward_decay=0.9,
-                      e_greedy=0.9,
+                      e_greedy=1,
                       replace_target_iter=200,
                       memory_size=2000,
-                      double_q=True
+                      double_q=True,
                       )
     #收敛到50
     elif rl_model == "prioritized_dqn":
@@ -55,14 +54,14 @@ if __name__=="__main__":
         RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.001,
                       reward_decay=0.9,
-                      e_greedy=0.95,
+                      e_greedy=0.9,
                       replace_target_iter=200,
                       memory_size=2000,
                       dueling=True
                       )
 
-#    RL.load_model(rl_model, 20000)
-     
+    RL.load_model(rl_model, 30000)
+    
     winners = []
     win_rate = 0
     for episode in range(num_epochs):
@@ -72,27 +71,19 @@ if __name__=="__main__":
         loss = 0
         while(not done):
             
+            #print(agent.game.get_record())
             # RL choose action based on observation
             actions = agent.get_actions_space()
-            s = combine(s, actions)
+            #print(actions)
             #action to one-hot
             actions_ont_hot = np.zeros(agent.dim_actions)
             for k in range(len(actions)):
                 actions_ont_hot[actions[k]] = 1
                 
-                
             action, action_id = RL.choose_action(s, actions_ont_hot, actions)
-            
+            #print(action)
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
-            
-            actions_ = agent.get_actions_space_state()
-            s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
-            
-            RL.store_transition(s, action, r, s_)
-
-            if (step > 200) and (step % 5 == 0):
-                loss = RL.learn()
 
             # swap observation
             s = s_
@@ -105,18 +96,10 @@ if __name__=="__main__":
             winners.append(0)
             
         win_rate = np.mean(winners)
-
-        if episode%2000 == 0:
-            #保存模型
-            if episode%10000 == 0 and episode != 0:
-                RL.save_model(rl_model, episode)
-                print("save: ",episode)
-            print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
             
             
     # end of game
     print('game over')
     RL.plot_cost()
-
 
 

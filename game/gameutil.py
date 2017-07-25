@@ -169,12 +169,7 @@ def MoveTypeRank(next_move_types):
             
     return type_rank
 
-
-
 ###AI策略选择
-
-
-
 def get_card_CombInfo(cards_left,last_move_type,last_move):
     # 出牌信息
     dan = []
@@ -222,11 +217,7 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
 
     # 出单,出对,出三,炸弹(考虑拆开)
     while card_num_info:
-
         for k, v in card_num_info.items():
-
-
-
             if len(v) == 4:
                 bomb.append(v)
                 card_num_info.pop(k)
@@ -244,8 +235,8 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                 card_num_info.pop(k)
                 break
 
-
     # 三带一,三带二
+    #三不带大牌
     for san_ in san:
         for dan_ in dan:
             # 防止重复
@@ -257,7 +248,6 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                 san_dai_er.append(san_ + dui_)
 #======================================================================================
     if last_move_type=="start":
-
         moves_types = ["dan", "dui", "san", "san_dai_yi", "san_dai_er", "shunzi"]
         i = 0
         for move_type in [dan, dui, san, san_dai_yi,
@@ -272,9 +262,7 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                     next_moves_type.append(moves_types[i])
             i = i + 1
 
-        #return next_moves,next_moves_type
-
-        # 出单
+    # 出单
     elif last_move_type == "dan":
         for move in dan:
             # 比last大
@@ -326,9 +314,6 @@ def get_card_CombInfo(cards_left,last_move_type,last_move):
                 if move[0].bigger_than(last_move[0]):
                     next_moves.append(move)
                     next_moves_type.append("shunzi")
-    else:
-        #print("last_move_type_wrong")
-        pass
 
     # 除了bomb,都可以出炸
     if last_move_type != "bomb":
@@ -342,11 +327,8 @@ def choose_start_chupai(cards_left,last_move_type,last_move):
     next_moves, next_moves_type=get_card_CombInfo(cards_left,last_move_type,last_move)
     return next_moves, next_moves_type
 
-
 def choose_start_policy(next_move_types, next_moves, last_move_type,cards_left,last_move):
     #要不起
-
-    #card_show(next_moves,'choose_start_policy：：next moves: ',2)
     '''
         如果是start ，那么就出最小的move_type
         如果上家出牌的话，下家的牌的类型和上家是一样的
@@ -354,62 +336,108 @@ def choose_start_policy(next_move_types, next_moves, last_move_type,cards_left,l
          poss_types,poss_moves是不拆牌情况下的下一步可能组合
 
     '''
-
     poss_types,poss_moves =get_card_CombInfo(cards_left,last_move_type,last_move)
-    #card_show(poss_moves,"choose_start_policy：：fan hui ka pai",2)
-    #next_move_types_ranks=MoveTypeRank(poss_types)
-    #follow_move_type=CheckNextPaiType(next_move_types_ranks)
-    follow_move_type=CheckNextPaiType(poss_types)
-
-    follow_move=CheckNextPaiValue(poss_types,follow_move_type,poss_moves)
-    #card_show(follow_move, 'choose_start_policy::next move: ', 1)
+    '''
+    如果是后2-3把牌的开局的话，要先放大牌
+    '''
+    if len(cards_left)<=6 and len(poss_moves)<=3:
+        follow_move_type = CheckNextPaiType(poss_types, "max")
+        follow_move = GetMaxCardType(poss_types, follow_move_type, poss_moves)
+    else:
+        follow_move_type=CheckNextPaiType(poss_types,"min")
+        follow_move=CheckNextPaiValue(poss_types,follow_move_type,poss_moves)
     return follow_move_type, follow_move
             
-
-
 def choose_orplay_policy(cards_left, last_move_type,last_move,next_move_types, next_moves):
     '''
             如果上家出牌的话，下家的牌的类型和上家是一样的
-
-             poss_types,poss_moves是不拆牌情况下的下一步可能组合
-
+            poss_types,poss_moves是不拆牌情况下的下一步可能组合
     '''
     poss_types, poss_moves = get_card_CombInfo(cards_left,last_move_type,last_move)
 
-    #card_show(poss_moves,"choose_orplay_policy::posssible move",2)
-
     '''
         如果上家出牌的话，下家的牌的类型和上家是一样的
-
         如果上家不要的话，自己要的起的话  
     '''
-
     follow_move_type = last_move_type
+
+    #看牌剩下多少
+    #牌剩下的多的话采用出最小的方式
+    #牌只剩两把的话采用出最大的方式
+    
+    '''
+    if len(poss_moves)>2 and len(cards_left)>6:
+        follow_move = CheckNextPaiValue(poss_types, follow_move_type, poss_moves)
+
+        if len(poss_moves) == 0:
+            #不拆牌情况下要不起的话，就考虑拆牌
+            follow_move = CheckNextPaiValue(next_move_types, follow_move_type, next_moves)
+            if len(follow_move)==0 or follow_move_type not in poss_types:
+                return "yaobuqi", []
+                #return "yaobuqi", "yaobuqi"
+        if poss_types[0] == "bomb" or poss_types == "bomb":
+            if len(cards_left)<=6 and len(poss_moves)<=3:
+                follow_move_type="bomb"
+                #因为poss_move套了两个list
+                follow_move=poss_moves[0]
+            else:
+                return "yaobuqi", []
+      #出最大的牌
+    else:
+        follow_move = GetMaxCardType(next_move_types, follow_move_type, next_moves)
+        if follow_move or follow_move_type not in poss_types:
+            return "yaobuqi", []
+     '''
     follow_move = CheckNextPaiValue(poss_types, follow_move_type, poss_moves)
-
-    #print("choose_orplay_policy:: follow_move_type,poss_types", follow_move_type, " ", poss_types)
-
 
     if len(poss_moves) == 0:
         #不拆牌情况下要不起的话，就考虑拆牌
         follow_move = CheckNextPaiValue(next_move_types, follow_move_type, next_moves)
-        #print(next_move_types, follow_move_type, next_moves,follow_move)
         if len(follow_move)==0 or follow_move_type not in poss_types:
             return "yaobuqi", []
             #return "yaobuqi", "yaobuqi"
-    if poss_types == ["bomb"] or poss_types == "bomb":
-        if len(cards_left)<=6:
+    if poss_types[0] == "bomb" or poss_types == "bomb":
+        if len(cards_left)<=6 and len(poss_moves)<=3:
             follow_move_type="bomb"
             #因为poss_move套了两个list
             follow_move=poss_moves[0]
         else:
             return "yaobuqi", []
+    
     return follow_move_type, follow_move
 
+def GetMaxCardType(next_move_types, follow_move_type, next_moves):
+    #找牌面最大的牌出
+    # ==========================================================================
+    next_move = None
+    mlst = []
+    if follow_move_type in ["dan", "dui", "san", "san_dai_yi", "shunzi", "san_dai_er", "bomb"]:
+        # 筛选出满足follow_move_type类型的牌的组合
+        next_op_lst = []
+        for j in range(len(next_moves)):
+            if next_move_types[j] == follow_move_type:
+                next_op_lst.append(next_moves[j])
 
+            # 进行牌面的比较
+        idx = 0
+        for move in next_op_lst:
+                # 比last大
+            if idx == 0:
+                mlst.append(move)
+                # bigger_than比较了card rank，所一不用考虑1和2的情况
+            #if mlst[0][0].bigger_than(move[0]):
+            if move[0].bigger_than(mlst[0][0]):
+                mlst.pop()
+                mlst.append(move)
+            idx += 1
+            # 返回可以出牌的组合里最小的move
+        if len(mlst):
+                next_move = mlst.pop()
+        else:
+            next_move = []
+    return next_move
 
-
-def CheckNextPaiType(poss_types_tmp):
+def CheckNextPaiType(poss_types_tmp,max_or_min):
     # 把符合出牌类型的牌放到一个列表里
     # 根据牌的rank,找出最小牌的位置，并把它设置为 next_move
     next_move_types_ranks={}
@@ -432,43 +460,33 @@ def CheckNextPaiType(poss_types_tmp):
             max_idx = j
 
     for i, j in chupai_order_dict.items():
-        if j == min_idx:
-            follow_move_type = i
+        if max_or_min=="min":
+            if j == min_idx:
+                follow_move_type = i
+        else:
+            if j == max_idx:
+                follow_move_type = i
 
-    #print("CheckNextPaiType：：follow_move_type: ", follow_move_type)
-
-    '''
-    rlst0=["dan", "dui", "shunzi", "san"]
-    rlst=[]
-    for it in rlst0:
-        if it in next_move_types_ranks:
-            rlst.append(it)
-
-
-    if follow_move_type in rlst0 and len(rlst)!=0:
-        rdx=random.randint(0,len(rlst))
-        follow_move_type=rlst[rdx]
-    '''
     #避免每次start都是出单
+    '''
     if follow_move_type=="dan" and "dui" in poss_types_tmp and "san_dai_yi" in poss_types_tmp:
-        rdx = np.random.randint(0, 2)
+        rdx = random.randint(0, 2)
         blst = ["dan", "dui","san"]
         follow_move_type = blst[rdx]
-    elif follow_move_type=="dan" and "dui" in poss_types_tmp:
+    '''
+    if follow_move_type=="dan" and "dui" in poss_types_tmp:
         rdx = np.random.randint(0, 1)
         clst = ["dan", "dui"]
         follow_move_type = clst[rdx]
 
-
     return follow_move_type
 
 def CheckNextPaiValue(next_move_types,follow_move_type,next_moves):
-
 #==========================================================================
     #如果是“对、三、炸”的
     next_move=None
     mlst=[]
-    if follow_move_type in ["dan","dui","san","san_dai_yi","san_dai_er","bomb"]:
+    if follow_move_type in ["dan","dui","san","san_dai_yi","shunzi","san_dai_er","bomb"]:
         #筛选出满足follow_move_type类型的牌的组合
         next_op_lst = []
         for j in range(len(next_moves)):
@@ -492,6 +510,5 @@ def CheckNextPaiValue(next_move_types,follow_move_type,next_moves):
         else:
             next_move=[]
     return next_move
-
 
 

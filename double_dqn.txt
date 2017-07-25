@@ -1,0 +1,21 @@
+episode:  0 , loss:  0 , win_rate:  0.0
+episode:  2000 , loss:  64.3392 , win_rate:  0.420789605197
+episode:  4000 , loss:  78.669 , win_rate:  0.407648087978
+episode:  6000 , loss:  1238.56 , win_rate:  0.394100983169
+episode:  8000 , loss:  193.248 , win_rate:  0.423572053493
+save:  10000
+episode:  10000 , loss:  445.789 , win_rate:  0.441755824418
+episode:  12000 , loss:  764.387 , win_rate:  0.454628780935
+episode:  14000 , loss:  1269.25 , win_rate:  0.467109492179
+episode:  16000 , loss:  1452.64 , win_rate:  0.483719767515
+episode:  18000 , loss:  5.24642 , win_rate:  0.498583412033
+save:  20000
+episode:  20000 , loss:  8.79086 , win_rate:  0.493175341233
+episode:  22000 , loss:  2019.39 , win_rate:  0.497841007227
+episode:  24000 , loss:  1111.72 , win_rate:  0.50960376651
+episode:  26000 , loss:  11.0369 , win_rate:  0.506942040691
+episode:  28000 , loss:  16.2783 , win_rate:  0.48498267919
+save:  30000
+episode:  30000 , loss:  23.6344 , win_rate:  0.468117729409
+episode:  32000 , loss:  25.6682 , win_rate:  0.458766913534
+episode:  34000 , loss:  160.589 , win_rate:  0.458015940708
