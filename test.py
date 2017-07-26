@@ -13,10 +13,10 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 10000
-    agent = Agent(models=["rl","cxgz","random"])
+    num_epochs = 3
+    agent = Agent(models=["rl","cxgz","cxgz"])
     
-    rl_model = "prioritized_dqn"
+    rl_model = "dueling_dqn"
     
     #random 70%, 
     if rl_model == "dqn":
@@ -41,23 +41,24 @@ if __name__=="__main__":
                       )
         
     elif rl_model == "dueling_dqn":
-        from rl.dueling_dqn import DuelingDQN
+        from rl.dueling_dqn_max import DuelingDQN
         RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.001,
                       reward_decay=0.9,
-                      e_greedy=0.9,
+                      e_greedy=1,
                       replace_target_iter=200,
                       memory_size=2000,
                       dueling=True
                       )
 
-    RL.load_model(rl_model, 80000)
+    RL.load_model(rl_model, 60000)
     
     winners = []
     win_rate = 0
     for episode in range(num_epochs):
         # initial observation
         s = agent.reset()
+        print(agent.game.playrecords.show("========"))
         done = False
         loss = 0
         while(not done):
@@ -87,7 +88,8 @@ if __name__=="__main__":
             winners.append(0)
             
         win_rate = np.mean(winners)
-            
+        print(agent.game.get_record().records)
+        print(r)
             
     # end of game
     print('game over')

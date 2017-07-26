@@ -11,7 +11,6 @@ gym: 0.8.0
 import numpy as np
 import tensorflow as tf
 
-np.random.seed(1)
 tf.set_random_seed(1)
 
 
@@ -187,6 +186,11 @@ class DuelingDQN:
         saver = tf.train.Saver() 
         saver.save(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
     
+    #新增
+    def load_model(self, name, episode):
+        saver = tf.train.Saver() 
+        saver.restore(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
+            
     #新增
     def plot_cost(self):
         import matplotlib.pyplot as plt
