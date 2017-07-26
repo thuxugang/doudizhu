@@ -15,10 +15,11 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 100001
-    agent = Agent(models=["rl","cxgz","random"])
+    agent = Agent(models=["rl","cxgz","cxgz"])
     
-    rl_model = "dqn"
+    rl_model = "dueling_dqn"
     
+    #random 70%, 
     if rl_model == "dqn":
         from rl.dqn_max import DeepQNetwork
         RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
@@ -28,20 +29,9 @@ if __name__=="__main__":
                       replace_target_iter=200,
                       memory_size=2000,
                       )
-    #发散到60
-    elif rl_model == "double_dqn":
-        from rl.double_dqn_max import DoubleDQN
-        RL = DoubleDQN(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.1,
-                      reward_decay=0.9,
-                      e_greedy=0.9,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      double_q=True
-                      )
-    #收敛到50
+    #random 73%,
     elif rl_model == "prioritized_dqn":
-        from rl.prioritized_dqn import DQNPrioritizedReplay
+        from rl.prioritized_dqn_max import DQNPrioritizedReplay
         RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.01,
                       reward_decay=0.9,
@@ -50,10 +40,11 @@ if __name__=="__main__":
                       memory_size=2000,
                       prioritized=True
                       )
+    #cxgz 64.2%  
     elif rl_model == "dueling_dqn":
-        from rl.dueling_dqn import DuelingDQN
+        from rl.dueling_dqn_max import DuelingDQN
         RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.001,
+                      learning_rate=0.01,
                       reward_decay=0.9,
                       e_greedy=0.9,
                       replace_target_iter=200,

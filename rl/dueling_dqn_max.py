@@ -20,8 +20,7 @@ import tensorflow as tf
 tf.set_random_seed(1)
 
 
-# Deep Q Network off-policy
-class DeepQNetwork:
+class DuelingDQN:
     def __init__(
             self,
             n_actions,
@@ -34,6 +33,7 @@ class DeepQNetwork:
             memory_size=500,
             batch_size=32,
             e_greedy_increment=None,
+            dueling=True,
             output_graph=False,
     ):
         self.n_actions = n_actions
@@ -49,6 +49,7 @@ class DeepQNetwork:
         self.n_l1 = 512
         self.n_l2 = 512
         
+        self.dueling = dueling
         self.lr = learning_rate
        
         # total learning step
@@ -85,11 +86,27 @@ class DeepQNetwork:
                 w2 = tf.get_variable('w2', [self.n_l1, self.n_l2], initializer=w_initializer, collections=c_names)
                 b2 = tf.get_variable('b2', [1, self.n_l2], initializer=b_initializer, collections=c_names)
                 l2 = tf.nn.relu(tf.matmul(l1, w2) + b2)
-                
-            with tf.variable_scope('l3'):
-                w3 = tf.get_variable('w3', [self.n_l2, self.n_actions], initializer=w_initializer, collections=c_names)
-                b3 = tf.get_variable('b3', [1, self.n_actions], initializer=b_initializer, collections=c_names)
-                out = tf.matmul(l2, w3) + b3
+            
+            if self.dueling:
+                # Dueling DQN
+                with tf.variable_scope('Value'):
+                    w3 = tf.get_variable('w3', [self.n_l2, 1], initializer=w_initializer, collections=c_names)
+                    b3 = tf.get_variable('b3', [1, 1], initializer=b_initializer, collections=c_names)
+                    self.V = tf.matmul(l2, w3) + b3
+                   
+                with tf.variable_scope('Advantage'):
+                    w3 = tf.get_variable('w3', [self.n_l2, self.n_actions], initializer=w_initializer, collections=c_names)
+                    b3 = tf.get_variable('b3', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                    self.A = tf.matmul(l2, w3) + b3
+                with tf.variable_scope('Q'):
+                    out = self.V + (self.A - tf.reduce_mean(self.A, axis=1, keep_dims=True))     # Q = V(s) + A(s,a)
+              
+            else:
+                with tf.variable_scope('l3'):
+                    w3 = tf.get_variable('w3', [self.n_l2, self.n_actions], initializer=w_initializer, collections=c_names)
+                    b3 = tf.get_variable('b3', [1, self.n_actions], initializer=b_initializer, collections=c_names)
+                    out = tf.matmul(l2, w3) + b3
+                    
             return out
 
         # ------------------ all inputs ------------------------
