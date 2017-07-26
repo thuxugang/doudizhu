@@ -15,7 +15,7 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 100001
-    agent = Agent(models=["rl","cxgz","cxgz"])
+    agent = Agent(models=["rl","cxgz","random"])
     
     rl_model = "dqn"
     
@@ -30,7 +30,7 @@ if __name__=="__main__":
                       )
     #发散到60
     elif rl_model == "double_dqn":
-        from rl.double_dqn import DoubleDQN
+        from rl.double_dqn_max import DoubleDQN
         RL = DoubleDQN(agent.dim_actions, agent.dim_states,num_epochs,
                       learning_rate=0.1,
                       reward_decay=0.9,
