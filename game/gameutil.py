@@ -83,6 +83,15 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return "yaobuqi", []
         else:
             return action[0][action[2]], action[1][action[2]] 
+    #随机
+    elif model == "combine":
+        r = np.random.randint(0,3)
+        if r == 0:
+            return choose_random(next_move_types, next_moves, last_move_type)
+        elif r == 1:
+            return choose_min(next_move_types, next_moves, last_move_type)
+        else:
+            return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
 
 ############################################
 #                  min                     #

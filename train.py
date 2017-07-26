@@ -14,18 +14,22 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 100001
-    agent = Agent(models=["rl","cxgz","cxgz"])
+    num_epochs = 1000001
+    agent = Agent(models=["rl","combine","combine"])
     
-    rl_model = "dueling_dqn"
+    rl_model = "dqn"
+
+    start_iter = 0
+    learning_rate = 0.01
+    e_greedy = 0.9
     
     #random 70%, 
     if rl_model == "dqn":
         from rl.dqn_max import DeepQNetwork
         RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.01,
+                      learning_rate=learning_rate,
                       reward_decay=0.9,
-                      e_greedy=0.9,
+                      e_greedy=e_greedy,
                       replace_target_iter=200,
                       memory_size=2000,
                       )
@@ -33,9 +37,9 @@ if __name__=="__main__":
     elif rl_model == "prioritized_dqn":
         from rl.prioritized_dqn_max import DQNPrioritizedReplay
         RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.01,
+                      learning_rate=learning_rate,
                       reward_decay=0.9,
-                      e_greedy=0.9,
+                      e_greedy=e_greedy,
                       replace_target_iter=200,
                       memory_size=2000,
                       prioritized=True
@@ -44,19 +48,20 @@ if __name__=="__main__":
     elif rl_model == "dueling_dqn":
         from rl.dueling_dqn_max import DuelingDQN
         RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=0.01,
+                      learning_rate=learning_rate,
                       reward_decay=0.9,
-                      e_greedy=0.9,
+                      e_greedy=e_greedy,
                       replace_target_iter=200,
                       memory_size=2000,
                       dueling=True
                       )
 
-#    RL.load_model(rl_model, 20000)
-     
+    if start_iter!= 0:
+        RL.load_model(rl_model, start_iter)
+        
     winners = []
     win_rate = 0
-    for episode in range(num_epochs):
+    for episode in range(start_iter, num_epochs):
         # initial observation
         s = agent.reset()
         done = False
@@ -103,7 +108,7 @@ if __name__=="__main__":
 
         if episode%2000 == 0:
             #保存模型
-            if episode%10000 == 0 and episode != 0:
+            if episode%50000 == 0 and episode != start_iter:
                 RL.save_model(rl_model, episode)
                 print("save: ",episode)
             print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
