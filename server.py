@@ -85,7 +85,6 @@ def play():
 def next_move():
     return app.send_static_file('index.html')
 
-
 if __name__ == '__main__':
     global agent
     agent = Agent()
