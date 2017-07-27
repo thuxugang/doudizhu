@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from .myclass import Game
 from .rlutil import get_state, get_actions, combine
 from .actions import  action_dict
-
+from .rl.model import model_init
 
 ############################################
 #               LR接口类                   #
@@ -18,7 +18,7 @@ class Agent(object):
     """
     只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
     """
-    def __init__(self, player=1, models=["rl","random","random"], train=True, RL=None):
+    def __init__(self, player=1, models=["rl","random","random"], train=True):
         self.game = None
         self.player = player
         self.models = models
@@ -27,7 +27,7 @@ class Agent(object):
         self.dim_states = 30 + 3 + 431 #431为dim_actions
         
         self.actions = []
-        self.RL = RL
+        self.RL = model_init(self, "prioritized_dqn", 500000)
         
         self.train = train
         

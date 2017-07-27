@@ -4,6 +4,8 @@
 Created on Mon Jul 17 09:18:19 2017
 @author: XuGang
 """
+from __future__ import absolute_import
+from game.agent import Agent
 
 from game import main_ddz
 from flask import Flask
@@ -61,8 +63,11 @@ app = Flask(__name__, static_url_path='')
 @crossdomain(origin='*')
 def init():
     global game_ddz
-    model = request.form["model"]
-    game_ddz = main_ddz.Game(model)
+    model1 = request.form["model1"]
+    model2 = request.form["model2"]
+    model3 = request.form["model3"]
+    
+    agent = Agent(models=[model1, model2, model3], train=False)
     game_ddz.game_start()
     record = game_ddz.get_record()
     return record

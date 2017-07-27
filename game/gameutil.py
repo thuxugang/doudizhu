@@ -125,6 +125,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return "buyao", []
         return next_move_types[action_id], next_moves[action_id] 
             
+    
 ############################################
 #                  min                     #
 ############################################
