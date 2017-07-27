@@ -18,10 +18,9 @@ class Agent(object):
     """
     只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
     """
-    def __init__(self, player=1, models=["rl","random","random"], train=True):
+    def __init__(self):
         self.game = None
-        self.player = player
-        self.models = models
+        
         self.actions_lookuptable = action_dict
         self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
         self.dim_states = 30 + 3 + 431 #431为dim_actions
@@ -29,9 +28,6 @@ class Agent(object):
         self.actions = []
         self.RL = model_init(self, "prioritized_dqn", 500000)
         
-        self.game = Game(self,self.RL)
-        self.game.game_start(train)
-    
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
         self.actions = get_actions(self.next_moves, self.actions_lookuptable, self.game)
@@ -47,3 +43,7 @@ class Agent(object):
     def next_move(self):
         self.game.get_next_move()
     
+    def game_init(self, models=["rl","random","random"], train=True):
+        self.models = models
+        self.game = Game(self, self.RL)
+        self.game.game_start(train)

@@ -450,7 +450,7 @@ class Player(object):
         return self.next_move_types, self.next_moves
         
     #出牌
-    def play(self, last_move_type, last_move, playrecords, action=None):
+    def play(self, last_move_type, last_move, playrecords):
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(next_move_types=self.next_move_types, 
                                                      next_moves=self.next_moves, 
@@ -461,8 +461,7 @@ class Player(object):
                                                      RL=self.RL,
                                                      agent=self.agent,
                                                      game=self.game,
-                                                     player_id=self.player_id,
-                                                     action=action)
+                                                     player_id=self.player_id)
         #记录
         end = self.record_move(playrecords)
         #展示
@@ -492,12 +491,15 @@ class WebShow(object):
         #剩余手牌
         self.cards_left1 = []
         for i in playrecords.cards_left1:
+            self.check_jocker(i)
             self.cards_left1.append(i.name+i.color)
         self.cards_left2 = []
         for i in playrecords.cards_left2:
+            self.check_jocker(i)
             self.cards_left2.append(i.name+i.color)        
         self.cards_left3 = []
         for i in playrecords.cards_left3:
+            self.check_jocker(i)
             self.cards_left3.append(i.name+i.color)        
         
         #可能出牌
@@ -507,6 +509,7 @@ class WebShow(object):
             for move in next_moves:
                 cards = []
                 for card in move:
+                    self.check_jocker(card)
                     cards.append(card.name+card.color)  
                 self.next_moves1.append(cards)
         self.next_moves2 = []
@@ -515,6 +518,7 @@ class WebShow(object):
             for move in next_moves:
                 cards = []
                 for card in move:
+                    self.check_jocker(card)
                     cards.append(card.name+card.color)  
                 self.next_moves2.append(cards)        
         self.next_moves3 = []
@@ -523,6 +527,7 @@ class WebShow(object):
             for move in next_moves:
                 cards = []
                 for card in move:
+                    self.check_jocker(card)
                     cards.append(card.name+card.color)  
                 self.next_moves3.append(cards)   
                 
@@ -536,6 +541,7 @@ class WebShow(object):
                 self.next_move1.append(u"不要")
             else:
                 for card in next_move:
+                    self.check_jocker(card)
                     self.next_move1.append(card.name+card.color)  
         else:
             self.next_move1.append(u"未出牌")
@@ -548,6 +554,7 @@ class WebShow(object):
                 self.next_move2.append(u"不要")
             else:
                 for card in next_move:
+                    self.check_jocker(card)
                     self.next_move2.append(card.name+card.color) 
         else:
             self.next_move2.append(u"未出牌")
@@ -560,6 +567,7 @@ class WebShow(object):
                 self.next_move3.append(u"不要")
             else:
                 for card in next_move:
+                    self.check_jocker(card)
                     self.next_move3.append(card.name+card.color) 
         else:
             self.next_move3.append(u"未出牌")
@@ -573,9 +581,17 @@ class WebShow(object):
             #处理要不起
             try:
                 for j in i[1]:
+                    self.check_jocker(j)
                     tmp_name.append(j.name+j.color)
                 tmp.append(tmp_name)
             except:
                 tmp.append(i[1])
             self.records.append(tmp)        
 
+    def check_jocker(self,i):
+        if i.name == "14":
+            i.name = u"小王"
+            i.color = ""
+        if i.name == "15":
+            i.name = u"大王"
+            i.color = ""

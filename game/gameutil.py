@@ -82,7 +82,7 @@ def card_show(cards, info, n):
        
 
 #在Player的next_moves中选择出牌方法
-def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, agent, game, player_id, action=None):
+def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, agent, game, player_id):
     
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
@@ -90,13 +90,6 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-    elif model == "rl":
-        if action[3][action[2]] == 429:
-            return "buyao", []
-        elif action[3][action[2]] == 430:
-            return "yaobuqi", []
-        else:
-            return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
         r = np.random.randint(0,3)
