@@ -13,19 +13,19 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 1000
+    num_epochs = 3
     rl_model = "prioritized_dqn"
     start_iter=500000
     
     RL = model_init(rl_model, start_iter)
-    agent = Agent(models=["random","xgmodel","xgmodel"], RL=RL)
+    agent = Agent(models=["rl","xgmodel","xgmodel"], train=False, RL=RL)
     
     winners = np.zeros(3)
     win_rate = 0
     for episode in range(num_epochs):
         # initial observation
         s = agent.reset()
-        #print(agent.game.playrecords.show("========"))
+        print(agent.game.playrecords.show("========"))
         done = False
         loss = 0
         while(not done):
@@ -63,8 +63,8 @@ if __name__=="__main__":
         """
         
         win_rate = winners/episode
-        #print(agent.game.get_record().records)
-        #print(r)
+        print(agent.game.get_record().records)
+        print(r)
             
     # end of game
     print('game over')
