@@ -6,27 +6,25 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from __future__ import absolute_import
 from game.agent import Agent
-from game.rlutil import combine
-
 import numpy as np
+from game.rlutil import combine
 
 #rl
 if __name__=="__main__":
     
     step = 0
     num_epochs = 1000001
-    agent = Agent(models=["rl","combine","combine"])
-    
     rl_model = "prioritized_dqn"
-
-    start_iter = 350000
-    learning_rate = 0.00001
+    start_iter=500000
+    
+    learning_rate = 0.0001
     e_greedy = 1
     
+    dim_actions, dim_states = 431, 464
     #random 70%, 
     if rl_model == "dqn":
         from rl.dqn_max import DeepQNetwork
-        RL = DeepQNetwork(agent.dim_actions, agent.dim_states,
+        RL = DeepQNetwork(dim_actions, dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
@@ -36,7 +34,7 @@ if __name__=="__main__":
     #random 73%,
     elif rl_model == "prioritized_dqn":
         from rl.prioritized_dqn_max import DQNPrioritizedReplay
-        RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,
+        RL = DQNPrioritizedReplay(dim_actions, dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
@@ -47,7 +45,7 @@ if __name__=="__main__":
     #cxgz 64.2%  
     elif rl_model == "dueling_dqn":
         from rl.dueling_dqn_max import DuelingDQN
-        RL = DuelingDQN(agent.dim_actions, agent.dim_states,
+        RL = DuelingDQN(dim_actions, dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
@@ -55,14 +53,13 @@ if __name__=="__main__":
                       memory_size=2000,
                       dueling=True
                       )
-    
+
     #fine-tune
-    #RL.load_model(rl_model, 80000)
-    
-    if start_iter!= 0:
-        RL.load_model(rl_model, start_iter)
+    RL.load_model(rl_model, start_iter)
         
-    winners = []
+    agent = Agent(models=["rl","xgmodel","xgmodel"], train=True, RL=RL)
+    
+    winners = np.zeros(3)
     win_rate = 0
     for episode in range(start_iter, num_epochs):
         # initial observation
@@ -101,14 +98,18 @@ if __name__=="__main__":
             s = s_
 
             step += 1
+        
+        if agent.game.playrecords.winner == 1:
+            winners[0] = winners[0] + 1
+        elif agent.game.playrecords.winner == 2:
+            winners[1] = winners[1] + 1
+        elif agent.game.playrecords.winner == 3:
+            winners[2] = winners[2] + 1
 
-        if r == 1:
-            winners.append(1)
-        else:
-            winners.append(0)
-            
-        win_rate = np.mean(winners)
-
+        
+        win_rate = winners/(episode-start_iter)
+        #print(agent.game.get_record().records)
+        #print(r)
         if episode%2000 == 0:
             #保存模型
             if episode%50000 == 0 and episode != start_iter:
@@ -119,7 +120,4 @@ if __name__=="__main__":
             
     # end of game
     print('game over')
-    RL.plot_cost()
-
-
 

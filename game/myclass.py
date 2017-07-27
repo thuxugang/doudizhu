@@ -33,7 +33,7 @@ class Game(object):
         self.RL = RL
         
     #发牌
-    def game_start(self):
+    def game_start(self, train):
         
         #初始化players
         self.players = []
@@ -45,7 +45,7 @@ class Game(object):
         self.playrecords = PlayRecords()    
         
         #发牌
-        game_init(self.players, self.playrecords, self.cards)
+        game_init(self.players, self.playrecords, self.cards, train)
     
     #返回扑克牌记录类
     def get_record(self):
