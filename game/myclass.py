@@ -7,7 +7,7 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 from .gameutil import card_show, choose, game_init
-from rl.model import model_init
+import jsonpickle
 
 ############################################
 #                 游戏类                   #
@@ -50,8 +50,8 @@ class Game(object):
     #返回扑克牌记录类
     def get_record(self):
         web_show = WebShow(self.playrecords)
-        #return jsonpickle.encode(web_show, unpicklable=False)
-        return web_show
+        return jsonpickle.encode(web_show, unpicklable=False)
+        #return web_show
     
     #返回下次出牌列表
     def get_next_moves(self):
@@ -125,7 +125,15 @@ class Card(object):
         #名称
         self.name = self.card_type.split('-')[0]
         #花色
-        self.color = self.card_type.split('-')[1]
+        color = self.card_type.split('-')[1]
+        if color == "a":
+            self.color = u'\u2660'
+        elif color == "b":
+            self.color = u'\u2665'
+        elif color == "c":
+            self.color = u'\u2663'
+        else:
+            self.color = u'\u2666'
         #大小
         self.rank = int(self.card_type.split('-')[2])
         
@@ -522,27 +530,39 @@ class WebShow(object):
         self.next_move1 = []
         if len(playrecords.next_move1) != 0:
             next_move = playrecords.next_move1[-1]
-            if next_move in ["yaobuqi", "buyao"]:
-                self.next_move1.append(next_move)
+            if next_move  == "yaobuqi":
+                self.next_move1.append(u"要不起")
+            elif next_move  == "buyao":
+                self.next_move1.append(u"不要")
             else:
                 for card in next_move:
                     self.next_move1.append(card.name+card.color)  
+        else:
+            self.next_move1.append(u"未出牌")
         self.next_move2 = []
         if len(playrecords.next_move2) != 0:
             next_move = playrecords.next_move2[-1]
-            if next_move in ["yaobuqi", "buyao"]:
-                self.next_move2.append(next_move)
+            if next_move  == "yaobuqi":
+                self.next_move2.append(u"要不起")
+            elif next_move  == "buyao":
+                self.next_move2.append(u"不要")
             else:
                 for card in next_move:
                     self.next_move2.append(card.name+card.color) 
+        else:
+            self.next_move2.append(u"未出牌")
         self.next_move3 = []
         if len(playrecords.next_move3) != 0:
             next_move = playrecords.next_move3[-1]
-            if next_move in ["yaobuqi", "buyao"]:
-                self.next_move3.append(next_move)
+            if next_move  == "yaobuqi":
+                self.next_move3.append(u"要不起")
+            elif next_move  == "buyao":
+                self.next_move3.append(u"不要")
             else:
                 for card in next_move:
                     self.next_move3.append(card.name+card.color) 
+        else:
+            self.next_move3.append(u"未出牌")
                 
         #记录
         self.records = []

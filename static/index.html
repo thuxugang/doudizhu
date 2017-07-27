@@ -204,8 +204,8 @@
     </div>
 
     <script>
-        var apiServer_init = "http://127.0.0.1:6666/init";
-        var apiServer_process = "http://127.0.0.1:6666/play";
+        var apiServer_init = "http://127.0.0.1:5000/init";
+        var apiServer_process = "http://127.0.0.1:5000/play";
         new Vue({
             el: ".container",
             data: {
@@ -223,9 +223,9 @@
                 init: function () {
                     var self = this;
                     $.post(apiServer_init, {
-                        model: self.model,
-                        mode2: self.mode2,
-                        mode3: self.mode3,
+                        model1: self.model1,
+                        model2: self.model2,
+                        model3: self.model3,
                     },function(data){
                         self.output = JSON.parse(data);
                         self.canSubmit_process = true;
