@@ -20,7 +20,7 @@ if __name__=="__main__":
     RL = model_init(rl_model, start_iter)
     agent = Agent(models=["random","xgmodel","xgmodel"], RL=RL)
     
-    winners = []
+    winners = np.zeros(3)
     win_rate = 0
     for episode in range(num_epochs):
         # initial observation
@@ -48,13 +48,21 @@ if __name__=="__main__":
             s = s_
 
             step += 1
-
+        
+        if agent.game.playrecords.winner == 1:
+            winners[0] = winners[0] + 1
+        elif agent.game.playrecords.winner == 2:
+            winners[1] = winners[1] + 1
+        elif agent.game.playrecords.winner == 3:
+            winners[2] = winners[2] + 1
+        """
         if r == 1:
             winners.append(1)
         else:
             winners.append(0)
-            
-        win_rate = np.mean(winners)
+        """
+        
+        win_rate = winners/episode
         #print(agent.game.get_record().records)
         #print(r)
             
