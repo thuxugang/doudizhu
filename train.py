@@ -17,11 +17,11 @@ if __name__=="__main__":
     num_epochs = 1000001
     agent = Agent(models=["rl","combine","combine"])
     
-    rl_model = "dqn"
+    rl_model = "prioritized_dqn"
 
-    start_iter = 0
-    learning_rate = 0.01
-    e_greedy = 0.9
+    start_iter = 350000
+    learning_rate = 0.00001
+    e_greedy = 1
     
     #random 70%, 
     if rl_model == "dqn":
@@ -55,7 +55,10 @@ if __name__=="__main__":
                       memory_size=2000,
                       dueling=True
                       )
-
+    
+    #fine-tune
+    #RL.load_model(rl_model, 80000)
+    
     if start_iter!= 0:
         RL.load_model(rl_model, start_iter)
         
