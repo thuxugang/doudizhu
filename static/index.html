@@ -78,7 +78,7 @@
         </form>
 
         <div class="show_radio" v-show="show_radio">
-            <div class="col-xs-4">
+            <div class="col-xs-12">
                 <form class="title">
                     <div class="panel panel-info">
                         <div class="panel-heading">是否显示Records</div>
@@ -89,12 +89,41 @@
                     </div>
                 </form>
             </div>
-            <div class="col-xs-8">
+        </div>
+
+        <div class="show_radio" v-show="show_radio">
+            <div class="col-xs-4">
                 <form class="title">
                     <div class="panel panel-info">
-                        <div class="panel-heading">选择机器人模式</div>
-                        <div id="models">
-                            <input type="radio" v-model="model" checked="true" value="random"/><label>随机出牌</label>
+                        <div class="panel-heading">地主出牌规则</div>
+                        <div id="model1">
+                            <input type="radio" v-model="model1" value="random"/><label>随机出牌</label>
+                            <input type="radio" v-model="model1" value="cxgz"/><label>CX规则</label>
+                            <input type="radio" v-model="model1" checked="true" value="xgrl"/><label>xg模型</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-4">
+                <form class="title">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">农民1出牌规则</div>
+                        <div id="model2">
+                            <input type="radio" v-model="model2" checked="true" value="random"/><label>随机出牌</label>
+                            <input type="radio" v-model="model2" value="cxgz"/><label>CX规则</label>
+                            <input type="radio" v-model="model2" value="xgrl"/><label>xg模型</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-4">
+                <form class="title">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">农民2出牌规则</div>
+                        <div id="model3">
+                            <input type="radio" v-model="model3" checked="true" value="random"/><label>随机出牌</label>
+                            <input type="radio" v-model="model3" value="cxgz"/><label>CX规则</label>
+                            <input type="radio" v-model="model3" value="xgrl"/><label>xg模型</label>
                         </div>
                     </div>
                 </form>
@@ -186,13 +215,17 @@
                 canSubmit_restart: false,
                 show_radio: true,
                 show_record: "",
-                model: "",
+                model1: "",
+                model2: "",
+                model3: "",
             },
             methods: {
                 init: function () {
                     var self = this;
                     $.post(apiServer_init, {
                         model: self.model,
+                        mode2: self.mode2,
+                        mode3: self.mode3,
                     },function(data){
                         self.output = JSON.parse(data);
                         self.canSubmit_process = true;

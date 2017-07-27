@@ -59,27 +59,27 @@ class Game(object):
         return next_move_types, next_moves
     
     #游戏进行    
-    def get_next_move(self, action):
-        while(self.i <= 2):
-            if self.i != 0:
-                self.get_next_moves()
-            self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
-            if self.yaobuqi:
-                self.yaobuqis.append(self.i)
-            else:
-                self.yaobuqis = []
-            #都要不起
-            if len(self.yaobuqis) == 2:
-                self.yaobuqis = []
-                self.last_move_type = self.last_move = "start"
-            if self.end:
-                self.playrecords.winner = self.i+1
-                break
-            self.i = self.i + 1
+    def get_next_move(self):
+    
+        self.get_next_moves()
+        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords)
+        if self.yaobuqi:
+            self.yaobuqis.append(self.i)
+        else:
+            self.yaobuqis = []
+        #都要不起
+        if len(self.yaobuqis) == 2:
+            self.yaobuqis = []
+            self.last_move_type = self.last_move = "start"
+        if self.end:
+            self.playrecords.winner = self.i+1
+        self.i = self.i + 1
         #一轮结束
-        self.playround = self.playround + 1
-        self.i = 0 
-        return self.playrecords.winner, self.end
+        if self.i > 2:
+            #playrecords.show("=============Round " + str(playround) + " End=============")
+            self.playround = self.playround + 1
+            #playrecords.show("=============Round " + str(playround) + " Start=============")
+            self.i = 0  
             
 ############################################
 #              扑克牌相关类                 #
@@ -442,7 +442,7 @@ class Player(object):
         return self.next_move_types, self.next_moves
         
     #出牌
-    def play(self, last_move_type, last_move, playrecords, action):
+    def play(self, last_move_type, last_move, playrecords, action=None):
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(next_move_types=self.next_move_types, 
                                                      next_moves=self.next_moves, 

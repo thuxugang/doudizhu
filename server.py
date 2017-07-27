@@ -7,7 +7,6 @@ Created on Mon Jul 17 09:18:19 2017
 from __future__ import absolute_import
 from game.agent import Agent
 
-from game import main_ddz
 from flask import Flask
 from flask import request
 from datetime import timedelta
@@ -62,23 +61,23 @@ app = Flask(__name__, static_url_path='')
 @app.route('/init',methods=['POST','GET'])
 @crossdomain(origin='*')
 def init():
-    global game_ddz
+    global agent
     model1 = request.form["model1"]
     model2 = request.form["model2"]
     model3 = request.form["model3"]
     
     agent = Agent(models=[model1, model2, model3], train=False)
-    game_ddz.game_start()
-    record = game_ddz.get_record()
+    record = agent.game.get_record()
+    
     return record
 
 @app.route('/play',methods=['POST','GET'])
 @crossdomain(origin='*')
 def play():
     
-    global game_ddz
-    game_ddz.next_move()
-    record = game_ddz.get_record()
+    global agent
+    agent.next_move()
+    record = agent.game.get_record()
     return record
 
 @app.route('/ddz',methods=['GET'])
