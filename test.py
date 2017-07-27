@@ -6,56 +6,19 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from __future__ import absolute_import
 from game.agent import Agent
-
+from rl.model import model_init
 import numpy as np
 
 #rl
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 10000
-    agent = Agent(models=["rl","combine","combine"])
-    
+    num_epochs = 1000
     rl_model = "prioritized_dqn"
-
-    start_iter = 500000
-    learning_rate = 0.00001
-    e_greedy = 1
+    start_iter=500000
     
-    #random 70%, 
-    if rl_model == "dqn":
-        from rl.dqn_max import DeepQNetwork
-        RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      )
-    #random 73%,
-    elif rl_model == "prioritized_dqn":
-        from rl.prioritized_dqn_max import DQNPrioritizedReplay
-        RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      prioritized=True
-                      )
-    #cxgz 64.2%  
-    elif rl_model == "dueling_dqn":
-        from rl.dueling_dqn_max import DuelingDQN
-        RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      dueling=True
-                      )
-    
-    RL.load_model(rl_model, start_iter)
+    RL = model_init(rl_model, start_iter)
+    agent = Agent(models=["random","xgmodel","xgmodel"], RL=RL)
     
     winners = []
     win_rate = 0

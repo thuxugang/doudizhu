@@ -25,7 +25,6 @@ class DuelingDQN:
             self,
             n_actions,
             n_features,
-            num_epochs,
             learning_rate=0.01,
             reward_decay=0.9,
             e_greedy=0.9,

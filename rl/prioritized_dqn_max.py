@@ -150,7 +150,6 @@ class DQNPrioritizedReplay:
             self,
             n_actions,
             n_features,
-            num_epochs,
             learning_rate=0.005,
             reward_decay=0.9,
             e_greedy=0.9,
@@ -187,8 +186,11 @@ class DQNPrioritizedReplay:
         else:
             self.memory = np.zeros((self.memory_size, n_features*2+2))
 
+        #显存占用20%
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.2)  
+
         if sess is None:
-            self.sess = tf.Session()
+            self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) 
             self.sess.run(tf.global_variables_initializer())
         else:
             self.sess = sess

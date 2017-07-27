@@ -6,7 +6,7 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from __future__ import print_function
 import numpy as np
-
+from .rlutil import get_state, get_actions
     
 #发牌
 def game_init(players, playrecords, cards):
@@ -14,11 +14,11 @@ def game_init(players, playrecords, cards):
     #洗牌
     np.random.shuffle(cards.cards)
     #排序
-    p1_cards = cards.cards[:18]
+    p1_cards = cards.cards[:20]
     p1_cards.sort(key=lambda x: x.rank)
-    p2_cards = cards.cards[18:36]
+    p2_cards = cards.cards[20:37]
     p2_cards.sort(key=lambda x: x.rank)
-    p3_cards = cards.cards[36:]
+    p3_cards = cards.cards[37:]
     p3_cards.sort(key=lambda x: x.rank)
     players[0].cards_left = playrecords.cards_left1 = p1_cards
     players[1].cards_left = playrecords.cards_left2 = p2_cards
@@ -68,7 +68,7 @@ def card_show(cards, info, n):
        
 
 #在Player的next_moves中选择出牌方法
-def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, action):
+def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, agent, game, player_id, action):
     
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
@@ -92,7 +92,25 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return choose_min(next_move_types, next_moves, last_move_type)
         else:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-
+    #xgmodel
+    elif model == "xgmodel":
+        #要不起
+        if len(next_moves) == 0:
+            return "yaobuqi", []
+        #state
+        s = get_state(game.playrecords, player_id)
+        
+        #action
+        actions = get_actions(next_moves, agent.actions_lookuptable, game)
+        actions_ont_hot = np.zeros(agent.dim_actions)
+        for k in range(len(actions)):
+            actions_ont_hot[actions[k]] = 1
+        action, action_id = RL.choose_action(s, actions_ont_hot, actions)
+        #不要
+        if actions[action_id] == 429:
+            return "buyao", []
+        return next_move_types[action_id], next_moves[action_id] 
+            
 ############################################
 #                  min                     #
 ############################################

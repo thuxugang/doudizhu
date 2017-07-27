@@ -7,13 +7,14 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 from .gameutil import card_show, choose, game_init
+from rl.model import model_init
 
 ############################################
 #                 游戏类                   #
 ############################################                   
 class Game(object):
     
-    def __init__(self, models):
+    def __init__(self, agent, RL):
         #初始化一副扑克牌类
         self.cards = Cards()
         
@@ -25,16 +26,20 @@ class Game(object):
         self.yaobuqis = []
         
         #choose模型
-        self.models = models
+        self.models = agent.models
+        
+        #RL
+        self.agent = agent
+        self.RL = RL
         
     #发牌
     def game_start(self):
         
         #初始化players
         self.players = []
-        self.players.append(Player(1, self.models[0]))
-        self.players.append(Player(2, self.models[1]))
-        self.players.append(Player(3, self.models[2]))
+        self.players.append(Player(1, self.models[0], self.agent, self, self.RL))
+        self.players.append(Player(2, self.models[1], self.agent, self, self.RL))
+        self.players.append(Player(3, self.models[2], self.agent, self, self.RL))
         
         #初始化扑克牌记录类
         self.playrecords = PlayRecords()    
@@ -378,11 +383,15 @@ class Player(object):
     """
     player类
     """
-    def __init__(self, player_id, model):
+    def __init__(self, player_id, model, agent=None, game=None, RL=None):
         self.player_id = player_id
         self.cards_left = []
         #出牌模式
         self.model = model
+        #RL_model
+        self.RL = RL
+        self.game = game
+        self.agent = agent
 
     #展示
     def show(self, info):
@@ -441,6 +450,10 @@ class Player(object):
                                                      last_move=last_move, 
                                                      cards_left=self.cards_left, 
                                                      model=self.model, 
+                                                     RL=self.RL,
+                                                     agent=self.agent,
+                                                     game=self.game,
+                                                     player_id=self.player_id,
                                                      action=action)
         #记录
         end = self.record_move(playrecords)

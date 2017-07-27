@@ -26,7 +26,7 @@ if __name__=="__main__":
     #random 70%, 
     if rl_model == "dqn":
         from rl.dqn_max import DeepQNetwork
-        RL = DeepQNetwork(agent.dim_actions, agent.dim_states,num_epochs,
+        RL = DeepQNetwork(agent.dim_actions, agent.dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
@@ -36,7 +36,7 @@ if __name__=="__main__":
     #random 73%,
     elif rl_model == "prioritized_dqn":
         from rl.prioritized_dqn_max import DQNPrioritizedReplay
-        RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,num_epochs,
+        RL = DQNPrioritizedReplay(agent.dim_actions, agent.dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
@@ -47,7 +47,7 @@ if __name__=="__main__":
     #cxgz 64.2%  
     elif rl_model == "dueling_dqn":
         from rl.dueling_dqn_max import DuelingDQN
-        RL = DuelingDQN(agent.dim_actions, agent.dim_states,num_epochs,
+        RL = DuelingDQN(agent.dim_actions, agent.dim_states,
                       learning_rate=learning_rate,
                       reward_decay=0.9,
                       e_greedy=e_greedy,
