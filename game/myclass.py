@@ -585,7 +585,10 @@ class WebShow(object):
                     tmp_name.append(j.name+j.color)
                 tmp.append(tmp_name)
             except:
-                tmp.append(i[1])
+                if i[1] == "yaobuqi":
+                    tmp.append(u"要不起")
+                elif i[1]  == "buyao":
+                    tmp.append(u"不要")
             self.records.append(tmp)        
 
     def check_jocker(self,i):
