@@ -13,12 +13,12 @@ from game.rlutil import combine
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 1000001
+    num_epochs = 2000001
     rl_model = "prioritized_dqn"
     start_iter=500000
     
     learning_rate = 0.0001
-    e_greedy = 1
+    e_greedy = 0.95
     
     dim_actions, dim_states = 431, 464
     #random 70%, 
@@ -57,7 +57,7 @@ if __name__=="__main__":
     #fine-tune
     RL.load_model(rl_model, start_iter)
         
-    agent = Agent(models=["rl","xgmodel","xgmodel"], train=True, RL=RL)
+    agent = Agent(models=["rl","combine","combine"], train=True, RL=RL)
     
     winners = np.zeros(3)
     win_rate = 0

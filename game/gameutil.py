@@ -90,6 +90,9 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
+    elif model == "xgmodel":
+       return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)    
+    #训练model
     elif model == "rl":
         if action[3][action[2]] == 429:
             return "buyao", []
@@ -99,32 +102,37 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
-        r = np.random.randint(0,3)
+        r = np.random.randint(0,10)
         if r == 0:
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
             return choose_min(next_move_types, next_moves, last_move_type)
-        else:
+        elif r in [2,3]:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-    #xgmodel
-    elif model == "xgmodel":
-        #要不起
-        if len(next_moves) == 0:
-            return "yaobuqi", []
-        #state
-        s = get_state(game.playrecords, player_id)
-        #action
-        actions = get_actions(next_moves, agent.actions_lookuptable, game)
-        s = combine(s, actions)
-        actions_ont_hot = np.zeros(agent.dim_actions)
-        for k in range(len(actions)):
-            actions_ont_hot[actions[k]] = 1
-        action, action_id = RL.choose_action(s, actions_ont_hot, actions)
-        #不要
-        if actions[action_id] == 429:
-            return "buyao", []
-        return next_move_types[action_id], next_moves[action_id] 
-            
+        else:
+            return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
+
+############################################
+#                xgmodel                   #
+############################################
+def choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id):
+    #要不起
+    if len(next_moves) == 0:
+        return "yaobuqi", []
+    #state
+    s = get_state(game.playrecords, player_id)
+    #action
+    actions = get_actions(next_moves, agent.actions_lookuptable, game)
+    s = combine(s, actions)
+    actions_ont_hot = np.zeros(agent.dim_actions)
+    for k in range(len(actions)):
+        actions_ont_hot[actions[k]] = 1
+    action, action_id = RL.choose_action(s, actions_ont_hot, actions)
+    #不要
+    if actions[action_id] == 429:
+        return "buyao", []
+    return next_move_types[action_id], next_moves[action_id]   
+   
 ############################################
 #                  min                     #
 ############################################
