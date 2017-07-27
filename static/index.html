@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>DeeCamp斗地主</title>
+    <!-- Bootstrap -->
+    <link href="bower_components/bootstrap/dist/css/bootstrap.css" rel="stylesheet">
+    <link href="bower_components/bootstrap/dist/css/bootstrap-theme.css" rel="stylesheet">
+
+    <script src="bower_components/vue/dist/vue.js"></script>
+    <script src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <style>
+        .container {
+            margin-top: 25px;
+            font-size: 20px;
+            word-wrap:break-word; 
+            word-break:break-all; 
+        }
+        .title {
+            text-align:center;
+            margin: 0px 0px 10% 0px;
+        }
+        .sentence pre {
+            font-size: 20px;
+        }
+        *[data-tooltip] {
+            position: relative;
+        }
+        *[data-tooltip]::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            font-size: 15px;
+            top: 40px;
+            right: -20px;
+            width: 150px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .15s ease-in-out;
+            display: block;
+            line-height: 16px;
+            background: #ddd;
+            padding: 5px;
+            border-radius: 5px;
+            border: 1px solid #c0c0c0;
+            box-shadow: 2px 4px 5px rgba(0, 0, 0, 0.4);
+            z-index: 1;
+        }
+        *[data-tooltip]:hover::after {
+            opacity: 1;
+        }
+    </style>
+
+</head>
+
+
+<body>
+    <div class="container">
+        <form id="title" class="title">
+            <div class="panel panel-info">
+                <div class="panel-heading">
+                    <center><h1>DeeCamp之斗不死的Dee</h1></center>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <a class="btn btn-danger btn-lg" @click="init" v-if="canSubmit_init">开始游戏</a>
+            </div>
+            <div class="col-xs-12">
+                <a class="btn btn-danger btn-lg" @click="process" v-if="canSubmit_process">出牌</a>
+            </div>
+            <div class="col-xs-12">
+                <a class="btn btn-danger btn-lg" @click="restart" v-if="canSubmit_restart">重新开始</a>
+            </div>
+        </form>
+
+        <div class="show_radio" v-show="show_radio">
+            <div class="col-xs-4">
+                <form class="title">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">是否显示Records</div>
+                        <div id="show_records">
+                            <input type="radio" v-model="show_record" value="yes" checked="true" /><label>是</label>
+                            <input type="radio" v-model="show_record" value="no"/><label>否</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xs-8">
+                <form class="title">
+                    <div class="panel panel-info">
+                        <div class="panel-heading">选择机器人模式</div>
+                        <div id="models">
+                            <input type="radio" v-model="model" checked="true" value="random"/><label>随机出牌</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="row" v-if="output">
+            <hr/>
+            <div class="panel panel-info">
+                <div class="panel-heading">余牌统计</div>
+                <div class="panel-body">
+                    <h2>Player 1： {{output.cards_left1}}</h2>
+                    <h2>Player 2： {{output.cards_left2}}</h2>
+                    <h2>Player 3： {{output.cards_left3}}</h2>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="panel panel-info ">
+                    <div class="panel-heading">
+                        Player 1
+                    </div>
+                    <ul class="list-group-item" style="background-color:yellow">
+                        <span class="badge" v-if="output.records.length%3==0">Your Turn</span>
+                        {{output.next_move1}}
+                    </ul>
+                    <ul class="list-group" v-for="item in output.next_moves1">
+                        <li class="list-group-item">
+                            {{item}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="panel panel-info ">
+                    <div class="panel-heading">
+                        Player 2
+                    </div>
+                    <ul class="list-group-item" style="background-color:yellow">
+                        <span class="badge" v-if="output.records.length%3==1">Your Turn</span>
+                        {{output.next_move2}}
+                    </ul>
+                    <ul class="list-group" v-for="item in output.next_moves2">
+                        <li class="list-group-item">
+                            {{item}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-xs-4">
+                <div class="panel panel-info ">
+                    <div class="panel-heading">
+                        Player 3
+                    </div>
+                    <ul class="list-group-item" style="background-color:yellow">
+                        <span class="badge" v-if="output.records.length%3==2">Your Turn</span>
+                        {{output.next_move3}}
+                    </ul>
+                    <ul class="list-group" v-for="item in output.next_moves3">
+                        <li class="list-group-item">
+                            {{item}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="col-xs-12" v-if="show_record=='yes'">
+                <div class="panel panel-info">
+                <div class="panel-heading">Records</div>
+                    <ul class="list-group" v-for="item in output.records">
+                        <li class="list-group-item">
+                            <span class="badge">{{item[0]}}</span>
+                            {{item[1]}}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var apiServer_init = "http://127.0.0.1:6666/init";
+        var apiServer_process = "http://127.0.0.1:6666/play";
+        new Vue({
+            el: ".container",
+            data: {
+                output: "",
+                canSubmit_init: true,
+                canSubmit_process: false,
+                canSubmit_restart: false,
+                show_radio: true,
+                show_record: "",
+                model: "",
+            },
+            methods: {
+                init: function () {
+                    var self = this;
+                    $.post(apiServer_init, {
+                        model: self.model,
+                    },function(data){
+                        self.output = JSON.parse(data);
+                        self.canSubmit_process = true;
+                        self.canSubmit_init = false;
+                        self.show_radio = false;
+                    });
+                },
+                process: function () {
+                    var self = this;
+                    var tmp = "";
+                    $.get(apiServer_process, function(data){
+                        tmp = JSON.parse(data);
+                        if (tmp.winner !== 0){
+                            alert("Winner: " + tmp.winner);
+                            self.canSubmit_restart = true;
+                            self.canSubmit_process = false;
+                        }
+                        self.output = tmp;
+                    });
+                },
+                restart: function () {
+                    location.reload();
+                },
+
+            }
+        });
+    </script>
+</body>
+
+</html>
