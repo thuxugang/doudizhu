@@ -13,11 +13,13 @@ import numpy as np
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 3
+    num_epochs = 1000
     rl_model = "prioritized_dqn"
     start_iter=500000
     
-    RL = model_init(rl_model, start_iter)
+    dim_actions, dim_states = 431, 464
+    
+    RL = model_init(dim_actions, dim_states, rl_model, start_iter)
     agent = Agent(models=["rl","xgmodel","xgmodel"], train=False, RL=RL)
     
     winners = np.zeros(3)

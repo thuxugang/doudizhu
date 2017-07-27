@@ -6,8 +6,8 @@ Created on Thu Jul 13 21:55:58 2017
 """
 from __future__ import print_function
 import numpy as np
-from .rlutil import get_state, get_actions
-    
+from .rlutil import get_state, get_actions, combine
+
 #发牌
 def game_init(players, playrecords, cards, train):
     
@@ -113,9 +113,9 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return "yaobuqi", []
         #state
         s = get_state(game.playrecords, player_id)
-        
         #action
         actions = get_actions(next_moves, agent.actions_lookuptable, game)
+        s = combine(s, actions)
         actions_ont_hot = np.zeros(agent.dim_actions)
         for k in range(len(actions)):
             actions_ont_hot[actions[k]] = 1
