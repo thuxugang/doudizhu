@@ -127,7 +127,7 @@ def choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id):
     actions_ont_hot = np.zeros(agent.dim_actions)
     for k in range(len(actions)):
         actions_ont_hot[actions[k]] = 1
-    action, action_id = RL.choose_action(s, actions_ont_hot, actions)
+    action, action_id = RL.choose_action_model(s, actions_ont_hot, actions)
     #不要
     if actions[action_id] == 429:
         return "buyao", []
