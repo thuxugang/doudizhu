@@ -14,11 +14,11 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 2000001
-    rl_model = "prioritized_dqn"
-    start_iter=500000
+    rl_model = "ddpg"
+    start_iter=0
     
     learning_rate = 0.0001
-    e_greedy = 0.95
+    e_greedy = 1
     
     dim_actions, dim_states = 431, 464
     #random 70%, 
@@ -53,11 +53,17 @@ if __name__=="__main__":
                       memory_size=2000,
                       dueling=True
                       )
-
-    #fine-tune
-    RL.load_model(rl_model, start_iter)
         
-    agent = Agent(models=["rl","combine","combine"], train=True, RL=RL)
+    elif rl_model == "ddpg":
+        from rl.ddpg_max import DDPG
+        RL = DDPG(dim_actions, dim_states,
+                      lr_a=learning_rate,
+                      lr_c=learning_rate,
+                      )
+    #fine-tune
+    #RL.load_model(rl_model, start_iter)
+        
+    agent = Agent(models=["rl","random","random"], train=True, RL=RL)
     
     winners = np.zeros(3)
     win_rate = 0
@@ -78,6 +84,9 @@ if __name__=="__main__":
                 
             action, action_id = RL.choose_action(s, actions_one_hot, actions)
             
+            action_one_hot = np.zeros(agent.dim_actions)
+            action_one_hot[action] = 1
+                
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
             
@@ -89,7 +98,7 @@ if __name__=="__main__":
                 
             s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
             
-            RL.store_transition(s, actions_one_hot_, action, r, s_)
+            RL.store_transition(s, actions_one_hot, actions_one_hot_, action_one_hot, r, s_)
 
             if (step > 200) and (step % 5 == 0):
                 loss = RL.learn()
