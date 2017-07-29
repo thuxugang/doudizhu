@@ -10,10 +10,10 @@ gym: 0.8.0
 original_vesion https://morvanzhou.github.io/tutorials/
 modified by thuxugang
 """
-
+from __future__ import absolute_import
 import numpy as np
 import tensorflow as tf
-
+from .model import rescope
 tf.set_random_seed(1)
 
 class SumTree(object):
@@ -160,6 +160,7 @@ class DQNPrioritizedReplay:
             output_graph=False,
             prioritized=True,
             sess=None,
+            scope=""
     ):
         self.n_actions = n_actions
         self.n_features = n_features
@@ -178,16 +179,20 @@ class DQNPrioritizedReplay:
 
         self.n_l1 = 512
         self.n_l2 = 512
-        
-        self._build_net()
 
+        #scope前缀
+        self.scope = scope
+
+            
+        self._build_net()
+        
         if self.prioritized:
             self.memory = Memory(capacity=memory_size)
         else:
             self.memory = np.zeros((self.memory_size, n_features*2+2))
 
         #显存占用20%
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.2)  
+        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)  
 
         if sess is None:
             self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) 
@@ -218,33 +223,34 @@ class DQNPrioritizedReplay:
                 b3 = tf.get_variable('b3', [1, self.n_actions], initializer=b_initializer, collections=c_names)
                 out = tf.matmul(l2, w3) + b3
             return out
-
-        # ------------------ build evaluate_net ------------------
-        self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
-        self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
-        if self.prioritized:
-            self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
-        with tf.variable_scope('eval_net'):
-            c_names, w_initializer, b_initializer = \
-                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], \
-                tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
-
-            self.q_eval = build_layers(self.s, c_names, w_initializer, b_initializer)
-
-        with tf.variable_scope('loss'):
+        
+        with tf.variable_scope(self.scope):
+            # ------------------ build evaluate_net ------------------
+            self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
+            self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
             if self.prioritized:
-                self.abs_errors = tf.reduce_sum(tf.abs(self.q_target - self.q_eval), axis=1)    # for updating Sumtree
-                self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.q_target, self.q_eval))
-            else:
-                self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
-        with tf.variable_scope('train'):
-            self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
-
-        # ------------------ build target_net ------------------
-        self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
-        with tf.variable_scope('target_net'):
-            c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
-            self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
+                self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
+            with tf.variable_scope('eval_net'):
+                c_names, w_initializer, b_initializer = \
+                    ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], \
+                    tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
+    
+                self.q_eval = build_layers(self.s, c_names, w_initializer, b_initializer)
+    
+            with tf.variable_scope('loss'):
+                if self.prioritized:
+                    self.abs_errors = tf.reduce_sum(tf.abs(self.q_target - self.q_eval), axis=1)    # for updating Sumtree
+                    self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.q_target, self.q_eval))
+                else:
+                    self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
+            with tf.variable_scope('train'):
+                self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
+    
+            # ------------------ build target_net ------------------
+            self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
+            with tf.variable_scope('target_net'):
+                c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
+                self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
 
     def store_transition(self, s, actions_one_hot, a, r, s_):
         if self.prioritized:    # prioritized replay
@@ -331,9 +337,9 @@ class DQNPrioritizedReplay:
         saver.save(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
 
     #新增
-    def load_model(self, name, episode):
+    def load_model(self, name):
         saver = tf.train.Saver() 
-        saver.restore(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
+        saver.restore(self.sess, name) 
         
     #新增   
     def plot_cost(self):

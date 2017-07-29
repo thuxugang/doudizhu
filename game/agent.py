@@ -18,7 +18,7 @@ class Agent(object):
     """
     只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
     """
-    def __init__(self, player=1, models=["rl","random","random"], train=True, RL=None):
+    def __init__(self, player=1, models=["rl","random","random"], train=True):
         self.game = None
         self.player = player
         self.models = models
@@ -27,12 +27,11 @@ class Agent(object):
         self.dim_states = 30 + 3 + 431 #431为dim_actions
         
         self.actions = []
-        self.RL = RL
         
         self.train = train
         
     def reset(self):
-        self.game = Game(self,self.RL)
+        self.game = Game(self)
         self.game.game_start(self.train)
         return get_state(self.game.playrecords, self.player)
     

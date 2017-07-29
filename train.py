@@ -8,6 +8,7 @@ from __future__ import absolute_import
 from game.agent import Agent
 import numpy as np
 from game.rlutil import combine
+from rl.model import model_init
 
 #rl
 if __name__=="__main__":
@@ -20,44 +21,9 @@ if __name__=="__main__":
     learning_rate = 0.0001
     e_greedy = 0.95
     
-    dim_actions, dim_states = 431, 464
-    #random 70%, 
-    if rl_model == "dqn":
-        from rl.dqn_max import DeepQNetwork
-        RL = DeepQNetwork(dim_actions, dim_states,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      )
-    #random 73%,
-    elif rl_model == "prioritized_dqn":
-        from rl.prioritized_dqn_max import DQNPrioritizedReplay
-        RL = DQNPrioritizedReplay(dim_actions, dim_states,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      prioritized=True
-                      )
-    #cxgz 64.2%  
-    elif rl_model == "dueling_dqn":
-        from rl.dueling_dqn_max import DuelingDQN
-        RL = DuelingDQN(dim_actions, dim_states,
-                      learning_rate=learning_rate,
-                      reward_decay=0.9,
-                      e_greedy=e_greedy,
-                      replace_target_iter=200,
-                      memory_size=2000,
-                      dueling=True
-                      )
-
-    #fine-tune
-    RL.load_model(rl_model, start_iter)
-        
-    agent = Agent(models=["rl","combine","combine"], train=True, RL=RL)
+    agent = Agent(models=["random","prioritized_dqn","random"], train=True)
+    
+    RL = model_init(agent, rl_model, e_greedy=e_greedy, start_iter=start_iter, scope="1")
     
     winners = np.zeros(3)
     win_rate = 0

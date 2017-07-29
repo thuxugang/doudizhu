@@ -14,7 +14,7 @@ from rl.model import model_init
 ############################################                   
 class Game(object):
     
-    def __init__(self, agent, RL):
+    def __init__(self, agent):
         #初始化一副扑克牌类
         self.cards = Cards()
         
@@ -30,16 +30,15 @@ class Game(object):
         
         #RL
         self.agent = agent
-        self.RL = RL
         
     #发牌
     def game_start(self, train):
         
         #初始化players
         self.players = []
-        self.players.append(Player(1, self.models[0], self.agent, self, self.RL))
-        self.players.append(Player(2, self.models[1], self.agent, self, self.RL))
-        self.players.append(Player(3, self.models[2], self.agent, self, self.RL))
+        self.players.append(Player(1, self.models[0], self.agent, self))
+        self.players.append(Player(2, self.models[1], self.agent, self))
+        self.players.append(Player(3, self.models[2], self.agent, self))
         
         #初始化扑克牌记录类
         self.playrecords = PlayRecords()    
@@ -383,16 +382,20 @@ class Player(object):
     """
     player类
     """
-    def __init__(self, player_id, model, agent=None, game=None, RL=None):
+    def __init__(self, player_id, model, agent=None, game=None):
         self.player_id = player_id
         self.cards_left = []
         #出牌模式
         self.model = model
         #RL_model
-        self.RL = RL
         self.game = game
         self.agent = agent
-
+        
+        self.RL = None
+        if self.model == "prioritized_dqn":
+            self.RL = model_init(self.agent, self.model, e_greedy=0.9, start_iter=500000, scope=str(self.player_id))
+        elif self.model == "dqn":
+            self.RL = model_init(self.agent, self.model, e_greedy=0.9, start_iter=500000, scope=str(self.player_id))
     #展示
     def show(self, info):
         self.total_moves.show(info)

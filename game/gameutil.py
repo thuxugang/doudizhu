@@ -90,7 +90,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-    elif model == "xgmodel":
+    elif model in ["prioritized_dqn", "xgmodel"]:
        return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)    
     #训练model
     elif model == "rl":
