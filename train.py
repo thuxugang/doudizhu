@@ -14,7 +14,7 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 2000001
-    rl_model = "ddpg"
+    rl_model = "prioritized_ddpg"
     start_iter= 0
     
     learning_rate = 0.001

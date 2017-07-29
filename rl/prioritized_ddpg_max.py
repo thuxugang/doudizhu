@@ -213,7 +213,7 @@ class DDPGPrioritized(object):
             self.td_error = tf.reduce_mean(tf.squared_difference(q_target, q))
         self.ctrain = tf.train.AdamOptimizer(self.lr_c).minimize(self.td_error, var_list=self.ce_params)
 
-        self.a_loss = -tf.reduce_mean(q)# + tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.ah,logits=self.a), name='A_error') # maximize the q
+        self.a_loss = -tf.reduce_mean(q) + tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.ah,logits=self.a), name='A_error') # maximize the q
 
         self.atrain = tf.train.AdamOptimizer(self.lr_a).minimize(self.a_loss, var_list=self.ae_params)
 
