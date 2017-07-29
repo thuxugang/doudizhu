@@ -206,8 +206,11 @@ class DDPGPrioritized(object):
 
         q_target = self.R + self.reward_decay * q_
         # in the feed_dic for the td_error, the self.a should change to actions in memory
-        self.abs_td_error = tf.reduce_sum(tf.abs(q_target - q), axis=1)   
-        self.td_error = tf.reduce_mean(self.ISWeights * tf.squared_difference(q_target, q))
+        if self.prioritized:
+            self.abs_td_error = tf.reduce_sum(tf.abs(q_target - q), axis=1)   
+            self.td_error = tf.reduce_mean(self.ISWeights * tf.squared_difference(q_target, q))
+        else:
+            self.td_error = tf.reduce_mean(tf.squared_difference(q_target, q))
         self.ctrain = tf.train.AdamOptimizer(self.lr_c).minimize(self.td_error, var_list=self.ce_params)
 
         self.a_loss = -tf.reduce_mean(q)# + tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=self.ah,logits=self.a), name='A_error') # maximize the q

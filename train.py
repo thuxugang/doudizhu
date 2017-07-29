@@ -14,10 +14,10 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 2000001
-    rl_model = "prioritized_ddpg"
+    rl_model = "ddpg"
     start_iter= 0
     
-    learning_rate = 0.01
+    learning_rate = 0.001
     e_greedy = 1
     
     dim_actions, dim_states = 431, 464
@@ -72,7 +72,7 @@ if __name__=="__main__":
     if start_iter!=0:
         RL.load_model(rl_model, start_iter)
     
-    agent = Agent(models=["rl","combine","combine"], train=True, RL=RL)
+    agent = Agent(models=["rl","random","random"], train=True, RL=RL)
     
     winners = np.zeros(3)
     win_rate = 0
