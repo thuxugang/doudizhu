@@ -13,7 +13,7 @@ modified by thuxugang
 from __future__ import absolute_import
 import numpy as np
 import tensorflow as tf
-from .model import rescope
+
 tf.set_random_seed(1)
 
 class SumTree(object):
@@ -154,13 +154,13 @@ class DQNPrioritizedReplay:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=500,
+            replace_target_iter_model=100000,
             memory_size=10000,
             batch_size=32,
             e_greedy_increment=None,
             output_graph=False,
             prioritized=True,
             sess=None,
-            scope=""
     ):
         self.n_actions = n_actions
         self.n_features = n_features
@@ -175,15 +175,13 @@ class DQNPrioritizedReplay:
 
         self.prioritized = prioritized    # decide to use double q or not
 
+        self.replace_target_iter_model = replace_target_iter_model
+        
         self.learn_step_counter = 0
 
         self.n_l1 = 512
         self.n_l2 = 512
 
-        #scope前缀
-        self.scope = scope
-
-            
         self._build_net()
         
         if self.prioritized:
@@ -224,33 +222,39 @@ class DQNPrioritizedReplay:
                 out = tf.matmul(l2, w3) + b3
             return out
         
-        with tf.variable_scope(self.scope):
-            # ------------------ build evaluate_net ------------------
-            self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
-            self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
+        # ------------------ build evaluate_net ------------------
+        self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
+        self.q_target = tf.placeholder(tf.float32, [None, self.n_actions], name='Q_target')  # for calculating loss
+        if self.prioritized:
+            self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
+        with tf.variable_scope('eval_net'):
+            c_names, w_initializer, b_initializer = \
+                ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], \
+                tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
+
+            self.q_eval = build_layers(self.s, c_names, w_initializer, b_initializer)
+
+        with tf.variable_scope('eval_net_model'):
+            c_names, w_initializer, b_initializer = \
+                ['eval_net_params_model', tf.GraphKeys.GLOBAL_VARIABLES], \
+                tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
+
+            self.q_eval_model = build_layers(self.s, c_names, w_initializer, b_initializer)
+            
+        with tf.variable_scope('loss'):
             if self.prioritized:
-                self.ISWeights = tf.placeholder(tf.float32, [None, 1], name='IS_weights')
-            with tf.variable_scope('eval_net'):
-                c_names, w_initializer, b_initializer = \
-                    ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], \
-                    tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
-    
-                self.q_eval = build_layers(self.s, c_names, w_initializer, b_initializer)
-    
-            with tf.variable_scope('loss'):
-                if self.prioritized:
-                    self.abs_errors = tf.reduce_sum(tf.abs(self.q_target - self.q_eval), axis=1)    # for updating Sumtree
-                    self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.q_target, self.q_eval))
-                else:
-                    self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
-            with tf.variable_scope('train'):
-                self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
-    
-            # ------------------ build target_net ------------------
-            self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
-            with tf.variable_scope('target_net'):
-                c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
-                self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
+                self.abs_errors = tf.reduce_sum(tf.abs(self.q_target - self.q_eval), axis=1)    # for updating Sumtree
+                self.loss = tf.reduce_mean(self.ISWeights * tf.squared_difference(self.q_target, self.q_eval))
+            else:
+                self.loss = tf.reduce_mean(tf.squared_difference(self.q_target, self.q_eval))
+        with tf.variable_scope('train'):
+            self._train_op = tf.train.AdamOptimizer(self.lr).minimize(self.loss)
+
+        # ------------------ build target_net ------------------
+        self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
+        with tf.variable_scope('target_net'):
+            c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
+            self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
 
     def store_transition(self, s, actions_one_hot, a, r, s_):
         if self.prioritized:    # prioritized replay
@@ -282,17 +286,43 @@ class DQNPrioritizedReplay:
             action = actions[action_id]
         return action, action_id
 
+    #修改
+    def choose_action_model(self, observation, actions_ont_hot, actions, e_greedy):
+        # to have batch dimension when feed into tf placeholder
+        observation = observation[np.newaxis, :]
+        if np.random.uniform() < e_greedy:
+            # forward feed the observation and get q value for every actions
+            actions_value = self.sess.run(self.q_eval_model, feed_dict={self.s: observation})
+            action = np.argmax(actions_value*actions_ont_hot)
+            if np.max(actions_value*actions_ont_hot) == 0.0:
+                action_id = np.random.randint(0, len(actions))
+                action = actions[action_id]                
+            else:
+                action_id = actions.index(action)
+        else:
+            action_id = np.random.randint(0, len(actions))
+            action = actions[action_id]
+        return action, action_id
+    
     def _replace_target_params(self):
         t_params = tf.get_collection('target_net_params')
         e_params = tf.get_collection('eval_net_params')
         self.sess.run([tf.assign(t, e) for t, e in zip(t_params, e_params)])
-    
+
+    def _replace_target_params_model(self):
+        m_params = tf.get_collection('eval_net_params_model')
+        e_params = tf.get_collection('eval_net_params')
+        self.sess.run([tf.assign(m, e) for m, e in zip(m_params, e_params)])
+        print("learn_step_counter: ", self.learn_step_counter, " update eval_net_params_model")
+        
     #修改
     def learn(self):
         if self.learn_step_counter % self.replace_target_iter == 0:
             self._replace_target_params()
             #print('\ntarget_params_replaced\n')
-
+        if self.learn_step_counter % self.replace_target_iter_model == 0:
+            self._replace_target_params_model()
+            
         if self.prioritized:
             tree_idx, batch_memory, ISWeights = self.memory.sample(self.batch_size)
         else:
@@ -332,15 +362,16 @@ class DQNPrioritizedReplay:
         return self.cost
 
     #新增
-    def save_model(self, name, episode):
+    def save_model(self, model):
         saver = tf.train.Saver() 
-        saver.save(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
+        saver.save(self.sess, model) 
 
     #新增
-    def load_model(self, name):
+    def load_model(self, model):
         saver = tf.train.Saver() 
-        saver.restore(self.sess, name) 
-        
+        saver.restore(self.sess, model) 
+        #读取最新模型
+        self._replace_target_params_model()
     #新增   
     def plot_cost(self):
         import matplotlib.pyplot as plt
@@ -348,4 +379,5 @@ class DQNPrioritizedReplay:
         plt.ylabel('Cost')
         plt.xlabel('training steps')
         plt.show()
+
         

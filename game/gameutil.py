@@ -90,7 +90,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-    elif model in ["prioritized_dqn", "xgmodel"]:
+    elif model in ["self","prioritized_dqn"]:
        return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)    
     #训练model
     elif model == "rl":
@@ -127,7 +127,7 @@ def choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id):
     actions_ont_hot = np.zeros(agent.dim_actions)
     for k in range(len(actions)):
         actions_ont_hot[actions[k]] = 1
-    action, action_id = RL.choose_action(s, actions_ont_hot, actions)
+    action, action_id = RL.choose_action_model(s, actions_ont_hot, actions, e_greedy=0.9)
     #不要
     if actions[action_id] == 429:
         return "buyao", []

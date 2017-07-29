@@ -8,7 +8,6 @@ from __future__ import print_function
 from __future__ import absolute_import
 from .myclass import Game
 from .rlutil import get_state, get_actions, combine
-from .actions import  action_dict
 
 
 ############################################
@@ -18,20 +17,22 @@ class Agent(object):
     """
     只可以在player 1进行训练,player 2/3可以random,规则或rl的val_net
     """
-    def __init__(self, player=1, models=["rl","random","random"], train=True):
+    def __init__(self, player=1, models=["rl","random","random"], my_config=None, RL=None, train=True):
         self.game = None
         self.player = player
         self.models = models
-        self.actions_lookuptable = action_dict
-        self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
-        self.dim_states = 30 + 3 + 431 #431为dim_actions
+        self.actions_lookuptable = my_config.actions_lookuptable
+        self.dim_actions = my_config.dim_actions
+        self.dim_states = my_config.dim_states
         
         self.actions = []
         
         self.train = train
         
+        self.RL = RL
+        
     def reset(self):
-        self.game = Game(self)
+        self.game = Game(self, self.RL)
         self.game.game_start(self.train)
         return get_state(self.game.playrecords, self.player)
     

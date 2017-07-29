@@ -9,21 +9,21 @@ from game.agent import Agent
 import numpy as np
 from game.rlutil import combine
 from rl.model import model_init
-
+from game.config import Config
 #rl
 if __name__=="__main__":
     
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=500000
+    start_iter=500001
     
+    my_config = Config()
     learning_rate = 0.0001
     e_greedy = 0.95
     
-    agent = Agent(models=["random","prioritized_dqn","random"], train=True)
-    
-    RL = model_init(agent, rl_model, e_greedy=e_greedy, start_iter=start_iter, scope="1")
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter)
+    agent = Agent(models=["prioritized_dqn","self","self"], my_config=my_config, RL=RL, train=True)
     
     winners = np.zeros(3)
     win_rate = 0
@@ -86,4 +86,3 @@ if __name__=="__main__":
             
     # end of game
     print('game over')
-
