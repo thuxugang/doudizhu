@@ -14,10 +14,10 @@ if __name__=="__main__":
     
     step = 0
     num_epochs = 2000001
-    rl_model = "ddpg"
+    rl_model = "prioritized_ddpg"
     start_iter= 0
     
-    learning_rate = 0.001
+    learning_rate = 0.01
     e_greedy = 1
     
     dim_actions, dim_states = 431, 464
@@ -60,6 +60,14 @@ if __name__=="__main__":
                       lr_a=learning_rate,
                       lr_c=learning_rate,
                       )
+    elif rl_model == "prioritized_ddpg":
+        from rl.prioritized_ddpg_max import DDPGPrioritized
+        RL = DDPGPrioritized(dim_actions, dim_states,
+                      lr_a=learning_rate,
+                      lr_c=learning_rate,
+                      prioritized=True
+                      )
+        
     #fine-tune
     if start_iter!=0:
         RL.load_model(rl_model, start_iter)
