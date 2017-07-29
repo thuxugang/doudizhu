@@ -154,7 +154,7 @@ class DQNPrioritizedReplay:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=500,
-            replace_target_iter_model=100000,
+            replace_target_iter_model=200000,
             memory_size=10000,
             batch_size=32,
             e_greedy_increment=None,

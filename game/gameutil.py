@@ -102,15 +102,15 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
-        r = np.random.randint(0,3)
+        r = np.random.randint(0,10)
         if r == 0:
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
             return choose_min(next_move_types, next_moves, last_move_type)
         elif r == 2:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-       # else:
-       #     return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
+        else:
+            return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
 
 ############################################
 #                xgmodel                   #
@@ -127,7 +127,7 @@ def choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id):
     actions_ont_hot = np.zeros(agent.dim_actions)
     for k in range(len(actions)):
         actions_ont_hot[actions[k]] = 1
-    action, action_id = RL.choose_action_model(s, actions_ont_hot, actions, e_greedy=0.9)
+    action, action_id = RL.choose_action_model(s, actions_ont_hot, actions, e_greedy=0.8)
     #不要
     if actions[action_id] == 429:
         return "buyao", []
