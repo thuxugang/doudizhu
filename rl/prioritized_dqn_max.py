@@ -171,7 +171,7 @@ class DQNPrioritizedReplay:
         self.memory_size = memory_size
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon = 0.5 if e_greedy_increment is not None else self.epsilon_max
 
         self.prioritized = prioritized    # decide to use double q or not
 
@@ -320,7 +320,7 @@ class DQNPrioritizedReplay:
         if self.learn_step_counter % self.replace_target_iter == 0:
             self._replace_target_params()
             #print('\ntarget_params_replaced\n')
-        if self.learn_step_counter % self.replace_target_iter_model == 0:
+        if self.learn_step_counter % self.replace_target_iter_model == 0 and self.learn_step_counter != 0:
             self._replace_target_params_model()
             
         if self.prioritized:
@@ -371,7 +371,7 @@ class DQNPrioritizedReplay:
         saver = tf.train.Saver() 
         saver.restore(self.sess, model) 
         #读取最新模型
-        self._replace_target_params_model()
+        #self._replace_target_params_model()
     #新增   
     def plot_cost(self):
         import matplotlib.pyplot as plt

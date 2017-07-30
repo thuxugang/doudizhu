@@ -102,7 +102,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
-        r = np.random.randint(0,10)
+        r = np.random.randint(0,3)
         if r == 0:
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
