@@ -16,14 +16,14 @@ if __name__=="__main__":
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=500001
+    start_iter=0
     
     my_config = Config()
-    learning_rate = 0.00001
+    learning_rate = 0.0001
     e_greedy = 0.9
     
     RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter)
-    agent = Agent(models=["prioritized_dqn","self","self"], my_config=my_config, RL=RL, train=True)
+    agent = Agent(models=["rl","random","random"], my_config=my_config, RL=RL, train=True)
     
     winners = np.zeros(3)
     win_rate = 0
@@ -78,10 +78,10 @@ if __name__=="__main__":
         #print(r)
         if episode%2000 == 0:
             #保存模型
-            if episode%50000 == 0 and episode != start_iter:
-                model ="Model_sa/"+rl_model+"_"+str(episode)+".ckpt"
-                RL.save_model(model)
-                print("save: ",episode)
+           # if episode%50000 == 0 and episode != start_iter:
+           #     model ="Model_sa/"+rl_model+"_"+str(episode)+".ckpt"
+           #     RL.save_model(model)
+           #     print("save: ",episode)
             print("episode: ",episode,", loss: ", loss, ", win_rate: ",win_rate)
             
             
