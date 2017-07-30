@@ -154,10 +154,11 @@ class DQNPrioritizedReplay:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=500,
-            replace_target_iter_model=200000,
-            memory_size=10000,
+            replace_target_iter_model=500000,
+            memory_size=5000,
             batch_size=32,
             e_greedy_increment=None,
+            epsilon_init=0.5,
             output_graph=False,
             prioritized=True,
             sess=None,
@@ -171,7 +172,8 @@ class DQNPrioritizedReplay:
         self.memory_size = memory_size
         self.batch_size = batch_size
         self.epsilon_increment = e_greedy_increment
-        self.epsilon = 0.5 if e_greedy_increment is not None else self.epsilon_max
+        self.epsilon_init = epsilon_init
+        self.epsilon = epsilon_init if e_greedy_increment is not None else self.epsilon_max
 
         self.prioritized = prioritized    # decide to use double q or not
 
@@ -187,7 +189,7 @@ class DQNPrioritizedReplay:
         if self.prioritized:
             self.memory = Memory(capacity=memory_size)
         else:
-            self.memory = np.zeros((self.memory_size, n_features*2+2))
+            self.memory = np.zeros((self.memory_size, n_features * 2 + 2 + n_actions))
 
         #显存占用20%
         gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)  
@@ -263,7 +265,7 @@ class DQNPrioritizedReplay:
         else:       # random replay
             if not hasattr(self, 'memory_counter'):
                 self.memory_counter = 0
-            transition = np.hstack((s, [a, r], s_))
+            transition = np.hstack((s, actions_one_hot, [a, r], s_))
             index = self.memory_counter % self.memory_size
             self.memory[index, :] = transition
             self.memory_counter += 1
@@ -313,8 +315,14 @@ class DQNPrioritizedReplay:
         m_params = tf.get_collection('eval_net_params_model')
         e_params = tf.get_collection('eval_net_params')
         self.sess.run([tf.assign(m, e) for m, e in zip(m_params, e_params)])
+        self.epsilon = self.epsilon_init
         print("learn_step_counter: ", self.learn_step_counter, " update eval_net_params_model")
-        
+    
+    def check_params(self):
+        em = self.sess.run(tf.get_collection('eval_net_params_model'))
+        e = self.sess.run(tf.get_collection('eval_net_params'))
+        t = self.sess.run(tf.get_collection('target_net_params'))
+        return tf.get_collection('eval_net_params_model'), em[-1],tf.get_collection('eval_net_params'), e[-1],tf.get_collection('target_net_params'), t[-1]
     #修改
     def learn(self):
         if self.learn_step_counter % self.replace_target_iter == 0:

@@ -16,14 +16,14 @@ if __name__=="__main__":
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=179000
+    start_iter=500001
     
     my_config = Config()
     learning_rate = 0.0001
-    e_greedy = 0.95
+    e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, e_greedy_increment=0.00001)
-    agent = Agent(models=["rl","self","self"], my_config=my_config, RL=RL, train=True)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.000001)
+    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
     winners = np.zeros(3)
     win_rate = 0
@@ -59,6 +59,7 @@ if __name__=="__main__":
 
             if (step > 200) and (step % 5 == 0):
                 loss = RL.learn()
+                em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
             # swap observation
             s = s_
