@@ -57,7 +57,7 @@ class Agent(object):
         if winner == 0:
             #不出reward -0.1
             if self.actions[action_id] == 429:
-                reward = -0.1
+                reward = -0.01
             else:
                 reward = 0
         elif winner == self.player:

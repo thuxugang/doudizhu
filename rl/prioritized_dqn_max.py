@@ -154,7 +154,7 @@ class DQNPrioritizedReplay:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=500,
-            replace_target_iter_model=500000,
+            replace_target_iter_model=1000000,
             memory_size=5000,
             batch_size=32,
             e_greedy_increment=None,
@@ -222,7 +222,7 @@ class DQNPrioritizedReplay:
                 w3 = tf.get_variable('w3', [self.n_l2, self.n_actions], initializer=w_initializer, collections=c_names)
                 b3 = tf.get_variable('b3', [1, self.n_actions], initializer=b_initializer, collections=c_names)
                 out = tf.matmul(l2, w3) + b3
-            return out
+            return out, b3
         
         # ------------------ build evaluate_net ------------------
         self.s = tf.placeholder(tf.float32, [None, self.n_features], name='s')  # input
@@ -234,14 +234,14 @@ class DQNPrioritizedReplay:
                 ['eval_net_params', tf.GraphKeys.GLOBAL_VARIABLES], \
                 tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
 
-            self.q_eval = build_layers(self.s, c_names, w_initializer, b_initializer)
+            self.q_eval, self.be = build_layers(self.s, c_names, w_initializer, b_initializer)
 
         with tf.variable_scope('eval_net_model'):
             c_names, w_initializer, b_initializer = \
                 ['eval_net_params_model', tf.GraphKeys.GLOBAL_VARIABLES], \
                 tf.random_normal_initializer(0., 0.3), tf.constant_initializer(0.1)  # config of layers
 
-            self.q_eval_model = build_layers(self.s, c_names, w_initializer, b_initializer)
+            self.q_eval_model, self.bem = build_layers(self.s, c_names, w_initializer, b_initializer)
             
         with tf.variable_scope('loss'):
             if self.prioritized:
@@ -256,7 +256,7 @@ class DQNPrioritizedReplay:
         self.s_ = tf.placeholder(tf.float32, [None, self.n_features], name='s_')    # input
         with tf.variable_scope('target_net'):
             c_names = ['target_net_params', tf.GraphKeys.GLOBAL_VARIABLES]
-            self.q_next = build_layers(self.s_, c_names, w_initializer, b_initializer)
+            self.q_next, _  = build_layers(self.s_, c_names, w_initializer, b_initializer)
 
     def store_transition(self, s, actions_one_hot, a, r, s_):
         if self.prioritized:    # prioritized replay
@@ -276,7 +276,8 @@ class DQNPrioritizedReplay:
         observation = observation[np.newaxis, :]
         if np.random.uniform() < self.epsilon:
             # forward feed the observation and get q value for every actions
-            actions_value = self.sess.run(self.q_eval, feed_dict={self.s: observation})
+            actions_value, b3 = self.sess.run([self.q_eval,self.be], feed_dict={self.s: observation})
+           # print("dz", b3)
             action = np.argmax(actions_value*actions_ont_hot)
             if np.max(actions_value*actions_ont_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))
@@ -294,7 +295,8 @@ class DQNPrioritizedReplay:
         observation = observation[np.newaxis, :]
         if np.random.uniform() < e_greedy:
             # forward feed the observation and get q value for every actions
-            actions_value = self.sess.run(self.q_eval_model, feed_dict={self.s: observation})
+            actions_value, b3 = self.sess.run([self.q_eval_model, self.bem],feed_dict={self.s: observation})
+           # print("nm",b3)
             action = np.argmax(actions_value*actions_ont_hot)
             if np.max(actions_value*actions_ont_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))
