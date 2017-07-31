@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from .myclass import Game
 from .rlutil import get_actions
 from .actions import  action_dict
-from rl.model import model_init
+from rl.init_model import model_init
 
 ############################################
 #               LR接口类                   #
