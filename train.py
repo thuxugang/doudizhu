@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from game.agent import Agent
 import numpy as np
 from game.rlutil import combine
-from rl.model import model_init
+from rl.init_model import model_init
 from game.config import Config
 #rl
 if __name__=="__main__":

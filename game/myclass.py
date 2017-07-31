@@ -7,7 +7,7 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 from .gameutil import card_show, choose, game_init
-from rl.model import model_init
+from rl.init_model import model_init
 
 ############################################
 #                 游戏类                   #
