@@ -8,7 +8,7 @@ from __future__ import print_function
 from __future__ import absolute_import
 from .myclass import Game
 from .rlutil import get_state, get_actions, combine
-
+from .gameutil import card_show
 
 ############################################
 #               LR接口类                   #
@@ -39,7 +39,6 @@ class Agent(object):
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
         self.actions = get_actions(self.next_moves, self.actions_lookuptable, self.game)
-        print(len(self.next_moves),len(self.actions))
         return self.actions
     
     #get_actions_space_state不改变参数
@@ -54,9 +53,7 @@ class Agent(object):
         #print(len(self.next_moves),len(self.actions))
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
-        
-        r = get_reward(action)
-        
+        #card_show(self.next_moves, "next_moves", 2)
         if winner == 0:
             #不出reward -0.1
             if self.actions[action_id] == 429:
@@ -66,17 +63,50 @@ class Agent(object):
                 reward = 0
             #炸弹（除了A/2/王炸炸弹）
             elif 355 <= self.actions[action_id] <= 365:
-                reward = 0.1
+                tmp = [x for x in self.next_move_types if x != "bomb"]
+                #只能出炸弹
+                if len(tmp) == 0:
+                    reward = 0.1
+                #还能出别的
+                else:
+                    reward = -0.1
             #顺子
             elif self.next_move_types[action_id] == "shunzi":
-                
-                
+                reward = 0.01*(len(self.next_move_types[action_id])-4)
+            #三带一/二    
+            elif self.next_move_types[action_id] == "san_dai_yi":
+                minid = self.next_move_types.index("san_dai_yi")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 5 else -0.05
+            elif self.next_move_types[action_id] == "san_dai_er":
+                minid = self.next_move_types.index("san_dai_er")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 5 else -0.05
+            #单
+            elif self.next_move_types[action_id] in ["dan"]:
+                minid = self.next_move_types.index("dan")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 5 else -0.05
+            #对
+            elif self.next_move_types[action_id] in ["dui"]:
+                minid = self.next_move_types.index("dui")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 5 else -0.05              
             else:
                 reward = 0
         elif winner == self.player:
             reward = 1
         else:
             reward = -1
+        #print(reward)
         return  new_state, reward, done
 
 #rl

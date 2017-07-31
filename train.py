@@ -16,13 +16,13 @@ if __name__=="__main__":
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=500001
+    start_iter=0
     
     my_config = Config()
-    learning_rate = 0.0001
+    learning_rate = 0.001
     e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=1, e_greedy_increment=0.000001)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.000001)
     agent = Agent(models=["rl","random","random"], my_config=my_config, RL=RL, train=True)
     
     winners = np.zeros(3)
@@ -35,7 +35,6 @@ if __name__=="__main__":
         done = False
         loss = 0
         while(not done):
-            
             # RL choose action based on observation
             actions = agent.get_actions_space()
             s = combine(s, actions)
@@ -60,7 +59,7 @@ if __name__=="__main__":
             RL.store_transition(s, actions_one_hot_, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
-                #loss = RL.learn()
+                loss = RL.learn()
                 em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
             # swap observation

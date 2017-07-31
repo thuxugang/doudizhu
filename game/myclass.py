@@ -213,11 +213,11 @@ class Moves(object):
             if i.rank in [14,15]:
                 self.king.append(i)
             #数量
-            tmp = self.card_num_info.get(i.name, [])
+            tmp = self.card_num_info.get(i.rank, [])
             if len(tmp) == 0:
-                self.card_num_info[i.name] = [i]
+                self.card_num_info[i.rank] = [i]
             else:
-                self.card_num_info[i.name].append(i)
+                self.card_num_info[i.rank].append(i)
             #顺序
             if i.rank in [13,14,15]: #不统计2,小王,大王
                 continue
@@ -234,14 +234,17 @@ class Moves(object):
         for k, v in self.card_num_info.items():
             if len(v) == 1:
                 self.dan.append(v)
-            elif len(v) == 2:
+        for k, v in self.card_num_info.items():
+            if len(v) == 2:
                 self.dui.append(v)
                 self.dan.append(v[:1])
-            elif len(v) == 3:
+        for k, v in self.card_num_info.items():
+            if len(v) == 3:
                 self.san.append(v)
                 self.dui.append(v[:2])
                 self.dan.append(v[:1])
-            elif len(v) == 4:
+        for k, v in self.card_num_info.items():
+            if len(v) == 4:
                 self.bomb.append(v)
                 self.san.append(v[:3])
                 self.dui.append(v[:2])
