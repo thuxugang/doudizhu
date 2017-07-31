@@ -109,8 +109,8 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return choose_min(next_move_types, next_moves, last_move_type)
         elif r == 2:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-        else:
-            return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
+        #else:
+        #    return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
 
 ############################################
 #                xgmodel                   #

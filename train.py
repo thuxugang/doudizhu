@@ -20,11 +20,13 @@ if __name__=="__main__":
     
     my_config = Config()
     learning_rate = 0.001
-    e_greedy = 0.9
+    e_greedy = 0.95
     
     RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.000001)
-    agent = Agent(models=["rl","random","random"], my_config=my_config, RL=RL, train=True)
+    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
+    losss = []
+    winrates = []
     winners = np.zeros(3)
     win_rate = 0
     for episode in range(start_iter, num_epochs):
@@ -58,7 +60,7 @@ if __name__=="__main__":
             
             RL.store_transition(s, actions_one_hot_, action, r, s_)
 
-            if (step > 200) and (step % 5 == 0):
+            if (step > 5000) and (step % 5 == 0):
                 loss = RL.learn()
                 em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
@@ -79,6 +81,10 @@ if __name__=="__main__":
         #print(agent.game.get_record().records)
         #print(r)
         e = RL.epsilon
+        if episode%200 == 0:
+            losss.append(loss)
+            winrates.append(win_rate[0])
+            
         if episode%2000 == 0:
             #保存模型
             if episode%50000 == 0 and episode != start_iter:
