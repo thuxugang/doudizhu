@@ -277,7 +277,9 @@ class DQNPrioritizedReplay:
         if np.random.uniform() < self.epsilon:
             # forward feed the observation and get q value for every actions
             actions_value, b3 = self.sess.run([self.q_eval,self.be], feed_dict={self.s: observation})
-           # print("dz", b3)
+            #print("dz", b3)
+            #print(actions_value)
+            #print(actions_value*actions_ont_hot)
             action = np.argmax(actions_value*actions_ont_hot)
             if np.max(actions_value*actions_ont_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))
@@ -296,7 +298,7 @@ class DQNPrioritizedReplay:
         if np.random.uniform() < e_greedy:
             # forward feed the observation and get q value for every actions
             actions_value, b3 = self.sess.run([self.q_eval_model, self.bem],feed_dict={self.s: observation})
-           # print("nm",b3)
+            #print("nm",b3)
             action = np.argmax(actions_value*actions_ont_hot)
             if np.max(actions_value*actions_ont_hot) == 0.0:
                 action_id = np.random.randint(0, len(actions))

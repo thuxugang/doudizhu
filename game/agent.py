@@ -39,6 +39,7 @@ class Agent(object):
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
         self.actions = get_actions(self.next_moves, self.actions_lookuptable, self.game)
+        print(len(self.next_moves),len(self.actions))
         return self.actions
     
     #get_actions_space_state不改变参数
@@ -50,14 +51,26 @@ class Agent(object):
     #传入actions的id
     def step(self, action_id=0):
         action = [self.next_move_types, self.next_moves, action_id, self.actions]
+        #print(len(self.next_moves),len(self.actions))
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
+        r = get_reward(action)
         
         if winner == 0:
             #不出reward -0.1
             if self.actions[action_id] == 429:
-                reward = -0.01
+                reward = -0.1
+            #要不起
+            elif self.actions[action_id] == 430:
+                reward = 0
+            #炸弹（除了A/2/王炸炸弹）
+            elif 355 <= self.actions[action_id] <= 365:
+                reward = 0.1
+            #顺子
+            elif self.next_move_types[action_id] == "shunzi":
+                
+                
             else:
                 reward = 0
         elif winner == self.player:

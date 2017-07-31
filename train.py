@@ -22,14 +22,16 @@ if __name__=="__main__":
     learning_rate = 0.0001
     e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.9, e_greedy_increment=0.000001)
-    agent = Agent(models=["rl","self","self"], my_config=my_config, RL=RL, train=True)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=1, e_greedy_increment=0.000001)
+    agent = Agent(models=["rl","random","random"], my_config=my_config, RL=RL, train=True)
     
     winners = np.zeros(3)
     win_rate = 0
     for episode in range(start_iter, num_epochs):
         # initial observation
         s = agent.reset()
+        if episode%2000 == 0:
+            print(agent.game.playrecords.show("==================="+str(episode)+"==================="))
         done = False
         loss = 0
         while(not done):
@@ -58,7 +60,7 @@ if __name__=="__main__":
             RL.store_transition(s, actions_one_hot_, action, r, s_)
 
             if (step > 200) and (step % 5 == 0):
-                loss = RL.learn()
+                #loss = RL.learn()
                 em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
             # swap observation
@@ -85,6 +87,7 @@ if __name__=="__main__":
                 RL.save_model(model)
                 print("save: ",episode)
             print("episode: ",episode,", epsilon: ", e, ", loss: ", loss, ", win_rate: ",win_rate)
+            print(agent.game.get_record().records)
             
             
     # end of game

@@ -74,7 +74,25 @@ def combine(s, a):
         s[33+i] = 1
     return s
     
-
+#获取可能出牌的reward
+class R():
+    def __init__(self):
+        self.move_types =[]
+    
+def get_reward(action):
+    next_move_types, next_moves, action_id, actions = action
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
         
     
     
