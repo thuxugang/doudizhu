@@ -54,7 +54,7 @@ class Agent(object):
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
-        alpha = 20
+        alpha = 10
         #card_show(self.next_moves, "next_moves", 2)
         if winner == 0:
             #不出reward -0.1
