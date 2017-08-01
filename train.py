@@ -16,19 +16,20 @@ if __name__=="__main__":
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=300000
+    start_iter=350000
     
     my_config = Config()
     learning_rate = 0.001
     e_greedy = 0.9
     
     RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.0001)
-    agent = Agent(models=["rl","self","self"], my_config=my_config, RL=RL, train=True)
+    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
     es = []
     
+    f = open('log.txt', 'w+')
     winners = np.zeros(3)
     win_rate = 0
     learn_step_counter = 0
@@ -98,6 +99,13 @@ if __name__=="__main__":
             print("episode: ",episode,", epsilon: ", e, ", loss: ", loss, ", win_rate: ",win_rate)
             print(agent.game.get_record().records)
             
+            f.write("episode: "+ str(episode) + ", epsilon: "+ str(e) + ", loss: "+ str(loss) + ", win_rate: "+ str(win_rate))
+            f.write("\n")
+            f.write(str(agent.game.get_record().records))
+            f.write("\n")
+            f.flush()
             
     # end of game
     print('game over')
+    f.close()
+    

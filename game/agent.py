@@ -83,6 +83,8 @@ class Agent(object):
             elif self.next_move_types[action_id] == "san":
                 if "san_dai_yi" in self.next_move_types or "san_dai_er" in self.next_move_types:
                     reward = -0.05
+                else:
+                    reward = 0
             #三带一/二    
             elif self.next_move_types[action_id] == "san_dai_yi":
                 minid = self.next_move_types.index("san_dai_yi")
