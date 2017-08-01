@@ -246,8 +246,8 @@ class Moves(object):
         for k, v in self.card_num_info.items():
             if len(v) == 4:
                 self.bomb.append(v)
-                self.san.append(v[:3])
-                self.dui.append(v[:2])
+                #self.san.append(v[:3])
+                #self.dui.append(v[:2])
                 self.dan.append(v[:1])
                 
         #三带一,三带二

@@ -54,7 +54,7 @@ class Agent(object):
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
-        alpha = 10
+        alpha = 20
         #card_show(self.next_moves, "next_moves", 2)
         if winner == 0:
             #不出reward -0.1
@@ -68,10 +68,10 @@ class Agent(object):
                 tmp = [x for x in self.next_move_types if x != "bomb"]
                 #只能出炸弹
                 if len(tmp) == 0:
-                    reward = 0.1
+                    reward = 0.05
                 #还能出别的
                 else:
-                    reward = -0.1
+                    reward = -0.05
             #顺子
             elif self.next_move_types[action_id] == "shunzi":
                 minid = self.next_move_types.index("shunzi")
