@@ -16,19 +16,22 @@ if __name__=="__main__":
     step = 0
     num_epochs = 2000001
     rl_model = "prioritized_dqn"
-    start_iter=0
+    start_iter=300000
     
     my_config = Config()
     learning_rate = 0.001
-    e_greedy = 0.95
+    e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.000001)
-    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.0001)
+    agent = Agent(models=["rl","self","self"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
+    es = []
+    
     winners = np.zeros(3)
     win_rate = 0
+    learn_step_counter = 0
     for episode in range(start_iter, num_epochs):
         # initial observation
         s = agent.reset()
@@ -45,7 +48,7 @@ if __name__=="__main__":
             for k in range(len(actions)):
                 actions_one_hot[actions[k]] = 1
                 
-            action, action_id = RL.choose_action(s, actions_one_hot, actions)
+            action, action_id, q, q_oh, q_av = RL.choose_action(s, actions_one_hot, actions)
             
             # RL take action and get next observation and reward
             s_, r, done = agent.step(action_id=action_id)
@@ -60,8 +63,8 @@ if __name__=="__main__":
             
             RL.store_transition(s, actions_one_hot_, action, r, s_)
 
-            if (step > 5000) and (step % 5 == 0):
-                loss = RL.learn()
+            if (step > 5000) and (step % 100 == 0):
+                loss, learn_step_counter = RL.learn()
                 em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
             # swap observation
@@ -81,9 +84,10 @@ if __name__=="__main__":
         #print(agent.game.get_record().records)
         #print(r)
         e = RL.epsilon
-        if episode%200 == 0:
+        if episode%1000 == 0:
             losss.append(loss)
             winrates.append(win_rate[0])
+            es.append(e)
             
         if episode%2000 == 0:
             #保存模型

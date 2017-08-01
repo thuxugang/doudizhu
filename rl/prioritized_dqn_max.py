@@ -154,7 +154,7 @@ class DQNPrioritizedReplay:
             reward_decay=0.9,
             e_greedy=0.9,
             replace_target_iter=500,
-            replace_target_iter_model=1000000,
+            replace_target_iter_model=100000,
             memory_size=5000,
             batch_size=32,
             e_greedy_increment=None,
@@ -274,22 +274,24 @@ class DQNPrioritizedReplay:
     def choose_action(self, observation, actions_ont_hot, actions):
         # to have batch dimension when feed into tf placeholder
         observation = observation[np.newaxis, :]
+        a, b, c = 0, 0, 0
         if np.random.uniform() < self.epsilon:
             # forward feed the observation and get q value for every actions
             actions_value, b3 = self.sess.run([self.q_eval,self.be], feed_dict={self.s: observation})
             #print("dz", b3)
             #print(actions_value)
             #print(actions_value*actions_ont_hot)
-            action = np.argmax(actions_value*actions_ont_hot)
-            if np.max(actions_value*actions_ont_hot) == 0.0:
-                action_id = np.random.randint(0, len(actions))
-                action = actions[action_id]                
-            else:
-                action_id = actions.index(action)
+            action_value_pos = actions_value*actions_ont_hot
+            action_value_pos[action_value_pos==0.0]=-np.inf
+            action = np.argmax(action_value_pos)
+            action_id = actions.index(action)
+            c = action
+            a = actions_value
+            b = action_value_pos
         else:
             action_id = np.random.randint(0, len(actions))
             action = actions[action_id]
-        return action, action_id
+        return action, action_id, a, b, c
 
     #修改
     def choose_action_model(self, observation, actions_ont_hot, actions, e_greedy):
@@ -320,7 +322,7 @@ class DQNPrioritizedReplay:
         e_params = tf.get_collection('eval_net_params')
         self.sess.run([tf.assign(m, e) for m, e in zip(m_params, e_params)])
         self.epsilon = self.epsilon_init
-        print("learn_step_counter: ", self.learn_step_counter, " update eval_net_params_model")
+        print("step: ", self.learn_step_counter, " update eval_net_model_params_model")
     
     def check_params(self):
         em = self.sess.run(tf.get_collection('eval_net_params_model'))
@@ -371,7 +373,7 @@ class DQNPrioritizedReplay:
 
         self.epsilon = self.epsilon + self.epsilon_increment if self.epsilon < self.epsilon_max else self.epsilon_max
         self.learn_step_counter += 1
-        return self.cost
+        return self.cost, self.learn_step_counter
 
     #新增
     def save_model(self, model):
@@ -383,7 +385,7 @@ class DQNPrioritizedReplay:
         saver = tf.train.Saver() 
         saver.restore(self.sess, model) 
         #读取最新模型
-        #self._replace_target_params_model()
+        self._replace_target_params_model()
     #新增   
     def plot_cost(self):
         import matplotlib.pyplot as plt
