@@ -19,11 +19,11 @@ if __name__=="__main__":
     start_iter=300000
     
     my_config = Config()
-    learning_rate = 0.001
-    e_greedy = 0.9
+    learning_rate = 0.0001
+    e_greedy = 0.95
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.0001)
-    agent = Agent(models=["rl","self","self"], my_config=my_config, RL=RL, train=True)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.00001)
+    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
@@ -33,13 +33,13 @@ if __name__=="__main__":
     winners = np.zeros(3)
     win_rate = 0
     learn_step_counter = 0
+    loss = 0
     for episode in range(start_iter, num_epochs):
         # initial observation
         s = agent.reset()
         if episode%2000 == 0:
             print(agent.game.playrecords.show("==================="+str(episode)+"==================="))
         done = False
-        loss = 0
         while(not done):
             # RL choose action based on observation
             actions = agent.get_actions_space()
@@ -64,7 +64,7 @@ if __name__=="__main__":
             
             RL.store_transition(s, actions_one_hot_, action, r, s_)
 
-            if (step > 5000) and (step % 100 == 0):
+            if (step > 5000) and (step % 10 == 0):
                 loss, learn_step_counter = RL.learn()
                 em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
 
@@ -81,7 +81,7 @@ if __name__=="__main__":
             winners[2] = winners[2] + 1
 
         
-        win_rate = winners/(episode-start_iter)
+        win_rate = winners/np.sum(winners)
         #print(agent.game.get_record().records)
         #print(r)
         e = RL.epsilon
@@ -89,6 +89,7 @@ if __name__=="__main__":
             losss.append(loss)
             winrates.append(win_rate[0])
             es.append(e)
+            winners = np.zeros(3)
             
         if episode%2000 == 0:
             #保存模型
@@ -101,8 +102,8 @@ if __name__=="__main__":
             
             f.write("episode: "+ str(episode) + ", epsilon: "+ str(e) + ", loss: "+ str(loss) + ", win_rate: "+ str(win_rate))
             f.write("\n")
-            f.write(str(agent.game.get_record().records))
-            f.write("\n")
+            #f.write(str(agent.game.get_record().records))
+            #f.write("\n")
             f.flush()
             
     # end of game

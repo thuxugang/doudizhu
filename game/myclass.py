@@ -252,14 +252,18 @@ class Moves(object):
                 
         #三带一,三带二
         for san in self.san:
-            for dan in self.dan:
-                #防止重复
-                if dan[0].name != san[0].name:
-                    self.san_dai_yi.append(san+dan)
-            for dui in self.dui:
-                #防止重复
-                if dui[0].name != san[0].name:
-                    self.san_dai_er.append(san+dui)  
+            if self.dan[0][0].name != san[0].name:
+                self.san_dai_yi.append(san+self.dan[0])
+            if self.dui[0][0].name != san[0].name:
+                self.san_dai_er.append(san+self.dui[0])
+            #for dan in self.dan:
+            #    #防止重复
+            #    if dan[0].name != san[0].name:
+            #        self.san_dai_yi.append(san+dan)
+            #for dui in self.dui:
+            #    #防止重复
+            #    if dui[0].name != san[0].name:
+            #        self.san_dai_er.append(san+dui)  
                     
         #获取最长顺子
         max_len = []
