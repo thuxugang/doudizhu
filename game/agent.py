@@ -26,7 +26,7 @@ class Agent(object):
         self.dim_states = 30 + 3 + 431 #431为dim_actions
         
         self.actions = []
-        self.RL = model_init(self, "prioritized_dqn", 500000)
+        self.RL = model_init(self, rl_model="prioritized_dqn", e_greedy=1, start_iter=500000)
         
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()

@@ -326,14 +326,14 @@ class DQNPrioritizedReplay:
         return self.cost
 
     #新增
-    def save_model(self, name, episode):
+    def save_model(self, model):
         saver = tf.train.Saver() 
-        saver.save(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
+        saver.save(self.sess, model) 
 
     #新增
-    def load_model(self, name, episode):
+    def load_model(self, model):
         saver = tf.train.Saver() 
-        saver.restore(self.sess, "Model_sa/"+name+"_"+str(episode)+".ckpt") 
+        saver.restore(self.sess, model) 
         
     #新增   
     def plot_cost(self):
