@@ -1,2 +1,1 @@
-episode: 300000, epsilon: 0.7, loss: 0, win_rate: [ 0.  0.  1.]
-episode: 302000, epsilon: 0.725699999999883, loss: 4.81247e-05, win_rate: [ 0.453  0.27   0.277]
+episode: 0, epsilon: 0.5, loss: 0, win_rate: [ 1.  0.  0.]

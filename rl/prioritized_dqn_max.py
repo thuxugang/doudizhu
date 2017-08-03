@@ -328,7 +328,7 @@ class DQNPrioritizedReplay:
         em = self.sess.run(tf.get_collection('eval_net_params_model'))
         e = self.sess.run(tf.get_collection('eval_net_params'))
         t = self.sess.run(tf.get_collection('target_net_params'))
-        return tf.get_collection('eval_net_params_model'), em[-1],tf.get_collection('eval_net_params'), e[-1],tf.get_collection('target_net_params'), t[-1]
+        return tf.get_collection('eval_net_params_model'), em[1],tf.get_collection('eval_net_params'), e[1],tf.get_collection('target_net_params'), t[1]
     #修改
     def learn(self):
         if self.learn_step_counter % self.replace_target_iter == 0:

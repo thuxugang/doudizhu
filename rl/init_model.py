@@ -22,7 +22,7 @@ def model_init(my_config, rl_model, e_greedy=1, start_iter=0, epsilon_init=None,
         from .prioritized_dqn_max import DQNPrioritizedReplay
         RL = DQNPrioritizedReplay(my_config.dim_actions, my_config.dim_states,
                                   e_greedy=e_greedy, epsilon_init=epsilon_init, e_greedy_increment=e_greedy_increment,
-                                  prioritized=True, replace_target_iter_model=50000)
+                                  prioritized=True, replace_target_iter_model=100000)
     #cxgz 64.2%  
     elif rl_model == "dueling_dqn":
         from .dueling_dqn_max import DuelingDQN

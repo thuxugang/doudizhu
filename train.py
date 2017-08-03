@@ -14,15 +14,15 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 2000001
+    num_epochs = 3000001
     rl_model = "prioritized_dqn"
-    start_iter=300000
+    start_iter=0
     
     my_config = Config()
-    learning_rate = 0.0001
-    e_greedy = 0.95
+    learning_rate = 0.01
+    e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.7, e_greedy_increment=0.00001)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.5,  e_greedy_increment=0.00001)
     agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
     losss = []

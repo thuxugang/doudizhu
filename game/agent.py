@@ -54,7 +54,7 @@ class Agent(object):
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
-        alpha = 10
+        alpha = 1
         #card_show(self.next_moves, "next_moves", 2)
         if winner == 0:
             #不出reward -0.1
@@ -68,7 +68,7 @@ class Agent(object):
                 tmp = [x for x in self.next_move_types if x != "bomb"]
                 #只能出炸弹
                 if len(tmp) == 0:
-                    reward = 0.05
+                    reward = 0.01
                 #还能出别的
                 else:
                     reward = -0.05
@@ -87,9 +87,17 @@ class Agent(object):
                     reward = 0
             #三带一/二    
             elif self.next_move_types[action_id] == "san_dai_yi":
-                reward = 0.01
+                minid = self.next_move_types.index("san_dai_yi")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 3 else -0.03
             elif self.next_move_types[action_id] == "san_dai_er":
-                reward = 0.01
+                minid = self.next_move_types.index("san_dai_er")
+                if minid == action_id:
+                    reward = 0.01
+                else:
+                    reward = -0.01*(action_id - minid) if (action_id - minid) < 3 else -0.03 
             #单
             elif self.next_move_types[action_id] in ["dan"]:
                 minid = self.next_move_types.index("dan")
