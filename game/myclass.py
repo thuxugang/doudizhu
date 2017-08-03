@@ -242,29 +242,36 @@ class Moves(object):
         for k, v in self.card_num_info.items():
             if len(v) == 1:
                 self.dan.append(v)
-            elif len(v) == 2:
+        for k, v in self.card_num_info.items():
+            if len(v) == 2:
                 self.dui.append(v)
                 self.dan.append(v[:1])
-            elif len(v) == 3:
+        for k, v in self.card_num_info.items():
+            if len(v) == 3:
                 self.san.append(v)
                 self.dui.append(v[:2])
                 self.dan.append(v[:1])
-            elif len(v) == 4:
+        for k, v in self.card_num_info.items():
+            if len(v) == 4:
                 self.bomb.append(v)
-                self.san.append(v[:3])
-                self.dui.append(v[:2])
+                #self.san.append(v[:3])
+                #self.dui.append(v[:2])
                 self.dan.append(v[:1])
                 
         #三带一,三带二
         for san in self.san:
-            for dan in self.dan:
-                #防止重复
-                if dan[0].name != san[0].name:
-                    self.san_dai_yi.append(san+dan)
-            for dui in self.dui:
-                #防止重复
-                if dui[0].name != san[0].name:
-                    self.san_dai_er.append(san+dui)  
+            if self.dan[0][0].name != san[0].name:
+                self.san_dai_yi.append(san+self.dan[0])
+            if self.dui[0][0].name != san[0].name:
+                self.san_dai_er.append(san+self.dui[0])
+            #for dan in self.dan:
+            #    #防止重复
+            #    if dan[0].name != san[0].name:
+            #        self.san_dai_yi.append(san+dan)
+            #for dui in self.dui:
+            #    #防止重复
+            #    if dui[0].name != san[0].name:
+            #        self.san_dai_er.append(san+dui)  
                     
         #获取最长顺子
         max_len = []
