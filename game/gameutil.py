@@ -284,8 +284,8 @@ def get_card_CombInfo(cards_left, last_move_type, last_move):
             elif len(v) == 3:
                 if v[0].name in ["1","2"]:
                     san.append(v)
-                    dui.append(v)
-                    dan.append(v)
+                    dui.append(v[:2])
+                    dan.append(v[:1])
                     card_num_info.pop(k)
                 else:
                     san.append(v)
@@ -294,7 +294,7 @@ def get_card_CombInfo(cards_left, last_move_type, last_move):
             elif len(v) == 2:
                 if v[0].name in ["1","2"]:
                     dui.append(v)
-                    dan.append(v)
+                    dan.append(v[:1])
                     card_num_info.pop(k)
                 else:
                     dui.append(v)
