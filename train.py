@@ -22,8 +22,8 @@ if __name__=="__main__":
     learning_rate = 0.001
     e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.5,  e_greedy_increment=0.00001)
-    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0,  e_greedy_increment=0.00001)
+    agent = Agent(models=["rl","cxgz","cxgz"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
@@ -85,11 +85,11 @@ if __name__=="__main__":
         #print(agent.game.get_record().records)
         #print(r)
         e = RL.epsilon
-        if episode%1000 == 0:
+        if episode%2000 == 0:
             losss.append(loss)
             winrates.append(win_rate[0])
             es.append(e)
-            winners = np.zeros(3)
+        #    winners = np.zeros(3)
             
         if episode%2000 == 0:
             #保存模型

@@ -103,12 +103,12 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
-        r = np.random.randint(0,5)
+        r = np.random.randint(0,6)
         if r == 0:
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
             return choose_min(next_move_types, next_moves, last_move_type)
-        elif 2 <= r < 5:
+        elif 2 <= r < 6:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
         #else:
         #    return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)

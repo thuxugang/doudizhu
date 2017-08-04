@@ -54,7 +54,7 @@ class Agent(object):
         winner, done = self.game.get_next_move(action=action)
         new_state = get_state(self.game.playrecords, self.player)
         
-        alpha = 1
+        alpha = 1000
         #card_show(self.next_moves, "next_moves", 2)
         if winner == 0:
             #不出reward -0.1
@@ -78,7 +78,7 @@ class Agent(object):
                 if minid == action_id:
                     reward = 0.01
                 else:
-                    reward = -0.01 * (len(self.next_moves[minid])-len(self.next_moves[action_id]))
+                    reward = -0.01 * (len(self.next_moves[minid])-len(self.next_moves[action_id])) if  (len(self.next_moves[minid])-len(self.next_moves[action_id])) < 3 else -0.03
             #san
             elif self.next_move_types[action_id] == "san":
                 if "san_dai_yi" in self.next_move_types or "san_dai_er" in self.next_move_types:
@@ -116,9 +116,9 @@ class Agent(object):
                 reward = 0
             reward = reward * alpha
         elif winner == self.player:
-            reward = 1
+            reward = 100
         else:
-            reward = -1
+            reward = -100
         #print(reward)
         return  new_state, reward, done
 

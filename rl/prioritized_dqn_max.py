@@ -211,12 +211,14 @@ class DQNPrioritizedReplay:
             with tf.variable_scope('l1'):
                 w1 = tf.get_variable('w1', [self.n_features, self.n_l1], initializer=w_initializer, collections=c_names)
                 b1 = tf.get_variable('b1', [1, self.n_l1], initializer=b_initializer, collections=c_names)
-                l1 = tf.nn.relu(tf.matmul(s, w1) + b1)
+                l1 = tf.matmul(s, w1) + b1
+                l1 = tf.maximum(0.2 * l1, l1)
                 
             with tf.variable_scope('l2'):
                 w2 = tf.get_variable('w2', [self.n_l1, self.n_l2], initializer=w_initializer, collections=c_names)
                 b2 = tf.get_variable('b2', [1, self.n_l2], initializer=b_initializer, collections=c_names)
-                l2 = tf.nn.relu(tf.matmul(l1, w2) + b2)
+                l2 = tf.matmul(l1, w2) + b2
+                l2 = tf.maximum(0.2 * l2, l2)
                 
             with tf.variable_scope('l3'):
                 w3 = tf.get_variable('w3', [self.n_l2, self.n_actions], initializer=w_initializer, collections=c_names)
@@ -321,7 +323,7 @@ class DQNPrioritizedReplay:
         m_params = tf.get_collection('eval_net_params_model')
         e_params = tf.get_collection('eval_net_params')
         self.sess.run([tf.assign(m, e) for m, e in zip(m_params, e_params)])
-        self.epsilon = self.epsilon_init
+        #self.epsilon = self.epsilon_init
         print("step: ", self.learn_step_counter, " update eval_net_model_params_model")
     
     def check_params(self):
