@@ -5,18 +5,21 @@ deecamp斗地主
 提供了可以结合AI的程序引擎，在next_moves中提供按照规则的出牌所有可能性，需要自己实现从next_moves中选择所出的牌（myutil中的choose方法），默认random
 
 ## web分支
-页面展示
+页面展示，提供可视化调试方法
 ### 使用方法
 #### 1.启动server.py
-#### 2.访问http://127.0.0.1:6666/ddz
+#### 2.访问http://127.0.0.1:5000/ddz
 
-## rl分支
-模仿OpenAI，提供了可以结合RL的程序引擎，可以选择对手为random或规则或其他RL，但是训练时只能训练一个且为player 1。
+## rl_pdqn分支
+模仿OpenAI，提供了可以结合RL的程序引擎，可以选择对手为random或陈潇规则(cxgz)或自身(self)，但是训练时只能训练一个且为player 1。该分支rl模型为prioritized_dqn，具体模型参考https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow 。
 
-rl模型包括DQN、double_dqn、prioritized_dqn和dueling_dqn，具体模型参考https://github.com/MorvanZhou/Reinforcement-learning-with-tensorflow
+目前胜率 vs random（90%）， cxgz（44%）
 
 ## multi-rl分支
 模仿OpenAI，提供了可以结合RL的程序引擎，可以同时训练多个rl player
 
+## mcts分支
+mcts暴力解决
+
 ## contributor
-thuxugang
+Deecamp第五组
