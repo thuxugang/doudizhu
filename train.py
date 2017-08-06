@@ -14,22 +14,22 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 3000001
+    num_epochs = 30000001
     rl_model = "prioritized_dqn"
-    start_iter=0
+    start_iter=2850000
     
     my_config = Config()
-    learning_rate = 0.001
-    e_greedy = 0.9
+    learning_rate = 0.00001
+    e_greedy = 0.95
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.5,  e_greedy_increment=0.00001)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.9,  e_greedy_increment=0.000001)
     agent = Agent(models=["rl","cxgz","cxgz"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
     es = []
     
-    f = open('log.txt', 'w+')
+    f = open('log.txt', 'a')
     winners = np.zeros(3)
     win_rate = 0
     learn_step_counter = 0
