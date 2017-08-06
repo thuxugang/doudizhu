@@ -303,12 +303,10 @@ class DQNPrioritizedReplay:
             # forward feed the observation and get q value for every actions
             actions_value, b3 = self.sess.run([self.q_eval_model, self.bem],feed_dict={self.s: observation})
             #print("nm",b3)
-            action = np.argmax(actions_value*actions_ont_hot)
-            if np.max(actions_value*actions_ont_hot) == 0.0:
-                action_id = np.random.randint(0, len(actions))
-                action = actions[action_id]                
-            else:
-                action_id = actions.index(action)
+            action_value_pos = actions_value*actions_ont_hot
+            action_value_pos[action_value_pos==0.0]=-np.inf
+            action = np.argmax(action_value_pos)
+            action_id = actions.index(action)
         else:
             action_id = np.random.randint(0, len(actions))
             action = actions[action_id]
@@ -323,7 +321,7 @@ class DQNPrioritizedReplay:
         m_params = tf.get_collection('eval_net_params_model')
         e_params = tf.get_collection('eval_net_params')
         self.sess.run([tf.assign(m, e) for m, e in zip(m_params, e_params)])
-        #self.epsilon = self.epsilon_init
+        self.epsilon = self.epsilon_init
         print("step: ", self.learn_step_counter, " update eval_net_model_params_model")
     
     def check_params(self):
