@@ -14,15 +14,15 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 30000001
+    num_epochs = 10000001
     rl_model = "prioritized_dqn"
-    start_iter=3350000
+    start_iter=3500000
     
     my_config = Config()
     learning_rate = 0.00001
-    e_greedy = 0.95
+    e_greedy = 0.9
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.9,  e_greedy_increment=0.000001)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.8,  e_greedy_increment=0.000001)
     agent = Agent(models=["rl","cxgz","self"], my_config=my_config, RL=RL, train=True)
     
     losss = []
@@ -40,7 +40,16 @@ if __name__=="__main__":
         if episode%2000 == 0:
             print(agent.game.playrecords.show("==================="+str(episode)+"==================="))
         done = False
+        
+        first = True
+        start = 0
         while(not done):
+            
+            #随机开局
+            if first:
+                start = np.random.randint(0,3)
+                agent.game.i = start
+                
             # RL choose action based on observation
             actions = agent.get_actions_space()
             s = combine(s, actions)
@@ -62,7 +71,8 @@ if __name__=="__main__":
                 
             s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
             
-            RL.store_transition(s, actions_one_hot_, action, r, s_)
+            if not first or start == 0:
+                RL.store_transition(s, actions_one_hot_, action, r, s_)
 
             if (step > 5000) and (step % 10 == 0):
                 loss, learn_step_counter = RL.learn()
@@ -72,6 +82,8 @@ if __name__=="__main__":
             s = s_
 
             step += 1
+            
+            first = False
         
         if agent.game.playrecords.winner == 1:
             winners[0] = winners[0] + 1
