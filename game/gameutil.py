@@ -5,8 +5,14 @@ Created on Thu Jul 13 21:55:58 2017
 @author: XuGang
 """
 from __future__ import print_function
+from __future__ import absolute_import
 import numpy as np
 from .rlutil import get_state, get_actions, combine
+from mcts.mcts import MCTS
+from mcts.graph import StateNode
+from mcts.tree_policies import UCB1
+from mcts.default_policies import random_terminal_roll_out
+from mcts.backups import monte_carlo
 import copy
 
 #发牌
@@ -83,7 +89,7 @@ def card_show(cards, info, n):
        
 
 #在Player的next_moves中选择出牌方法
-def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, agent, game, player_id, action):
+def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, my_config, game, player_id, action):
     
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
@@ -91,8 +97,10 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_min(next_move_types, next_moves, last_move_type)
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
+    elif model == "mcts":
+        return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action)
     elif model in ["self","prioritized_dqn"]:
-       return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)    
+       return choose_xgmodel(next_move_types, next_moves, RL, my_config, game, player_id)    
     #训练model
     elif model == "rl":
         if action[3][action[2]] == 429:
@@ -114,18 +122,62 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         #    return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
 
 ############################################
+#                  mcts                   #
+############################################
+def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action):
+    
+    #mcts simulation
+    if action != None:
+        if action == 429:
+            return "buyao", []
+        elif action == 430:
+            return "yaobuqi", []
+        else:
+            return next_move_types[action], next_moves[action] 
+
+    else:   
+        game_copy = copy.deepcopy(game)
+        
+        game_copy.players[0].model = "random"
+        game_copy.players[1].model = "random"
+        game_copy.players[2].model = "random"
+        
+        mcts = MCTS(tree_policy=UCB1(c=1.41), 
+                    default_policy=random_terminal_roll_out,
+                    backup=monte_carlo)
+    
+        #state
+        s = get_state(game_copy.playrecords, player=1)
+        #action
+        actions = get_actions(next_moves, game_copy.actions_lookuptable, game_copy)
+        #new state
+        s = combine(s, actions)
+        
+        root = StateNode(None, s, game_copy)
+        
+        best_action = mcts(root, n=1000)    
+            
+        if best_action == 429:
+            return "buyao", []
+        elif best_action == 430:
+            return "yaobuqi", []
+        else:
+            return next_move_types[best_action], next_moves[best_action] 
+
+
+############################################
 #                xgmodel                   #
 ############################################
-def choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id):
+def choose_xgmodel(next_move_types, next_moves, RL, my_config, game, player_id):
     #要不起
     if len(next_moves) == 0:
         return "yaobuqi", []
     #state
     s = get_state(game.playrecords, player_id)
     #action
-    actions = get_actions(next_moves, agent.actions_lookuptable, game)
+    actions = get_actions(next_moves, my_config.actions_lookuptable, game)
     s = combine(s, actions)
-    actions_ont_hot = np.zeros(agent.dim_actions)
+    actions_ont_hot = np.zeros(my_config.dim_actions)
     for k in range(len(actions)):
         actions_ont_hot[actions[k]] = 1
     action, action_id = RL.choose_action_model(s, actions_ont_hot, actions, e_greedy=1)

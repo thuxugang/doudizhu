@@ -29,11 +29,12 @@ class Agent(object):
         
         self.train = train
         
+        self.my_config = my_config
         self.RL = RL
         
     def reset(self):
-        self.game = Game(self, self.RL)
-        self.game.game_start(self.train)
+        self.game = Game(self.models, self.my_config)
+        self.game.game_start(self.train, self.RL)
         return get_state(self.game.playrecords, self.player)
     
     def get_actions_space(self):
@@ -49,9 +50,9 @@ class Agent(object):
         
     #传入actions的id
     def step(self, action_id=0):
-        action = [self.next_move_types, self.next_moves, action_id, self.actions]
+        #action = [self.next_move_types, self.next_moves, action_id, self.actions]
         #print(len(self.next_moves),len(self.actions))
-        winner, done = self.game.get_next_move(action=action)
+        winner, done = self.game.get_next_move(action=None)
         new_state = get_state(self.game.playrecords, self.player)
         
         alpha = 0

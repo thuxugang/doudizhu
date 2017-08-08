@@ -14,7 +14,7 @@ from rl.init_model import model_init
 ############################################                   
 class Game(object):
     
-    def __init__(self, agent, RL=None):
+    def __init__(self, models, my_config=None):
         #初始化一副扑克牌类
         self.cards = Cards()
         
@@ -26,20 +26,19 @@ class Game(object):
         self.yaobuqis = []
         
         #choose模型
-        self.models = agent.models
+        self.models = models
         
-        #RL
-        self.agent = agent
-        self.RL = RL
+        self.my_config = my_config
+        self.actions_lookuptable = my_config.actions_lookuptable
         
     #发牌
-    def game_start(self, train):
+    def game_start(self, train, RL=None):
         
         #初始化players
         self.players = []
-        self.players.append(Player(1, self.models[0], self.agent, self, self.RL))
-        self.players.append(Player(2, self.models[1], self.agent, self, self.RL))
-        self.players.append(Player(3, self.models[2], self.agent, self, self.RL))
+        self.players.append(Player(1, self.models[0], self.my_config, self, RL))
+        self.players.append(Player(2, self.models[1], self.my_config, self, RL))
+        self.players.append(Player(3, self.models[2], self.my_config, self, RL))
         
         #初始化扑克牌记录类
         self.playrecords = PlayRecords()    
@@ -390,14 +389,14 @@ class Player(object):
     """
     player类
     """
-    def __init__(self, player_id, model, agent=None, game=None, RL=None):
+    def __init__(self, player_id, model, my_config, game=None, RL=None):
         self.player_id = player_id
         self.cards_left = []
         #出牌模式
         self.model = model
         #RL_model
         self.game = game
-        self.agent = agent
+        self.my_config = my_config
         
         self.RL = RL
 
@@ -459,7 +458,7 @@ class Player(object):
                                                      cards_left=self.cards_left, 
                                                      model=self.model, 
                                                      RL=self.RL,
-                                                     agent=self.agent,
+                                                     my_config=self.my_config,
                                                      game=self.game,
                                                      player_id=self.player_id,
                                                      action=action)

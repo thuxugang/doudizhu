@@ -14,16 +14,13 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 30000001
+    num_epochs = 1
     rl_model = "prioritized_dqn"
-    start_iter=2850000
+    start_iter=0
     
     my_config = Config()
-    learning_rate = 0.00001
-    e_greedy = 0.95
-    
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.9,  e_greedy_increment=0.000001)
-    agent = Agent(models=["rl","cxgz","cxgz"], my_config=my_config, RL=RL, train=True)
+
+    agent = Agent(models=["mcts","random","random"], my_config=my_config, RL=None, train=True)
     
     losss = []
     winrates = []
@@ -43,33 +40,9 @@ if __name__=="__main__":
         while(not done):
             # RL choose action based on observation
             actions = agent.get_actions_space()
-            s = combine(s, actions)
-            #action to one-hot
-            actions_one_hot = np.zeros(agent.dim_actions)
-            for k in range(len(actions)):
-                actions_one_hot[actions[k]] = 1
                 
-            action, action_id, q, q_oh, q_av = RL.choose_action(s, actions_one_hot, actions)
-            
             # RL take action and get next observation and reward
-            s_, r, done = agent.step(action_id=action_id)
-            
-            actions_ = agent.get_actions_space_state()
-            #action to one-hot
-            actions_one_hot_ = np.zeros(agent.dim_actions)
-            for k in range(len(actions_)):
-                actions_one_hot_[actions_[k]] = 1
-                
-            s_ = combine(s_, actions_) #get_actions_space_state不改变game参数
-            
-            RL.store_transition(s, actions_one_hot_, action, r, s_)
-
-            if (step > 5000) and (step % 10 == 0):
-                loss, learn_step_counter = RL.learn()
-                em_name, em_value, e_name,e_value, t_name, t_value = RL.check_params()
-
-            # swap observation
-            s = s_
+            s_, r, done = agent.step()
 
             step += 1
         
@@ -84,23 +57,16 @@ if __name__=="__main__":
         win_rate = winners/np.sum(winners)
         #print(agent.game.get_record().records)
         #print(r)
-        e = RL.epsilon
         if episode%2000 == 0:
             losss.append(loss)
             winrates.append(win_rate[0])
-            es.append(e)
         #    winners = np.zeros(3)
             
         if episode%2000 == 0:
-            #保存模型
-            if episode%50000 == 0 and episode != start_iter:
-                model ="Model_dqn/"+str(episode)+".ckpt"
-                RL.save_model(model)
-                print("save: ",episode)
-            print("episode: ",episode,", epsilon: ", e, ", loss: ", loss, ", win_rate: ",win_rate)
+            print("episode: ",episode, ", win_rate: ",win_rate)
             print(agent.game.get_record().records)
             
-            f.write("episode: "+ str(episode) + ", epsilon: "+ str(e) + ", loss: "+ str(loss) + ", win_rate: "+ str(win_rate))
+            f.write("episode: "+ str(episode) +  ", win_rate: "+ str(win_rate))
             f.write("\n")
             #f.write(str(agent.game.get_record().records))
             #f.write("\n")

@@ -1,8 +1,7 @@
 from __future__ import print_function
-from __future__ import absolute_import
 
 import random
-from .utils import rand_max
+import utils
 
 
 class MCTS(object):
@@ -16,7 +15,7 @@ class MCTS(object):
         self.default_policy = default_policy
         self.backup = backup
 
-    def __call__(self, root, n=1000):
+    def __call__(self, root, n=1500):
         """
         Run the monte carlo tree search.
 
@@ -28,14 +27,11 @@ class MCTS(object):
             raise ValueError("Root's parent must be None.")
 
         for _ in range(n):
-            #selection
             node = _get_next_node(root, self.tree_policy)
-            #simulation
             node.reward = self.default_policy(node)
-            #back
             self.backup(node)
 
-        return rand_max(root.children.values(), key=lambda x: x.q).action
+        return utils.rand_max(root.children.values(), key=lambda x: x.q).action
 
 
 def _expand(state_node):
@@ -44,13 +40,13 @@ def _expand(state_node):
 
 
 def _best_child(state_node, tree_policy):
-    best_action_node = rand_max(state_node.children.values(),
+    best_action_node = utils.rand_max(state_node.children.values(),
                                       key=tree_policy)
     return best_action_node.sample_state()
 
 
 def _get_next_node(state_node, tree_policy):
-    while not state_node.is_terminal():
+    while not state_node.state.is_terminal():
         if state_node.untried_actions:
             return _expand(state_node)
         else:

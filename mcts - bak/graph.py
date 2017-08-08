@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from game.rlutil import get_state, get_actions, combine
-
 class Node(object):
     def __init__(self, parent):
         self.parent = parent
@@ -18,7 +15,7 @@ class ActionNode(Node):
         self.action = action
         self.n = 0
 
-    def sample_state(self):
+    def sample_state(self, real_world=False):
         """
         Samples a state from this action and adds it to the tree if the
         state never occurred before.
@@ -28,10 +25,16 @@ class ActionNode(Node):
         used from the real world action instead from the belief state actions.
         :return: The state node, which was sampled.
         """
-        state = self.parent.perform(self.action)
+        if real_world:
+            state = self.parent.state.real_world_perform(self.action)
+        else:
+            state = self.parent.state.perform(self.action)
 
         if state not in self.children:
-            self.children[state] = StateNode(self, state, self.parent.game)
+            self.children[state] = StateNode(self, state)
+
+        if real_world:
+            self.children[state].state.belief = state.belief
 
         return self.children[state]
 
@@ -43,16 +46,11 @@ class StateNode(Node):
     """
     A node holding a state in the tree.
     """
-    def __init__(self, parent, state, game):
+    def __init__(self, parent, state):
         super(StateNode, self).__init__(parent)
         self.state = state
         self.reward = 0
-        self.game = game
-        
-        next_move_types, next_moves = game.get_next_moves()
-        self.actions = get_actions(next_moves, game.actions_lookuptable, game)
-        print(self.actions)
-        for action in self.actions:
+        for action in state.actions:
             self.children[action] = ActionNode(self, action)
 
     @property
@@ -67,54 +65,6 @@ class StateNode(Node):
     def untried_actions(self, value):
         raise ValueError("Untried actions can not be set.")
 
-    def reward(self, parent, action):
-        if self.game.playrecords.winner == 0:
-            return 0
-        elif self.game.playrecords.winner == 1:
-            return 1
-        else:
-            return -1  
-          
-    def perform(self, action):
-        
-        if action in [429, 430]:
-            action_id = action
-        else:
-            action_id = self.actions.index(action)
-        
-        while(self.game.i <= 2):
-            self.game.get_next_moves()
-            self.game.last_move_type, self.game.last_move, self.game.end, self.game.yaobuqi = self.game.players[self.game.i].play(self.game.last_move_type, self.game.last_move, self.game.playrecords, action_id)
-            if self.game.yaobuqi:
-                self.game.yaobuqis.append(self.game.i)
-            else:
-                self.game.yaobuqis = []
-            #都要不起
-            if len(self.game.yaobuqis) == 2:
-                self.game.yaobuqis = []
-                self.game.last_move_type = self.game.last_move = "start"
-            if self.game.end:
-                self.game.playrecords.winner = self.game.i+1
-                break
-            self.game.i = self.game.i + 1
-        #一轮结束
-        self.game.i = 0             
-        
-        #s_
-        s_ = get_state(self.game.playrecords, player=1)
-        #action
-        next_move_types, next_moves = self.game.get_next_moves()
-        actions = get_actions(next_moves, self.game.actions_lookuptable, self.game)
-        s_ = combine(s_, actions)
-    
-        return StateNode(self, s_, self.game)
-    
-    def is_terminal(self):
-        if self.game.playrecords.winner == 0:
-            return False
-        else:
-            return True
-    
     def __str__(self):
         return "State: {}".format(self.state)
 
