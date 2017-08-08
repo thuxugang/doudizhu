@@ -3,7 +3,8 @@ from __future__ import absolute_import
 
 import random
 from .utils import rand_max
-
+import copy
+from .graph import StateNode
 
 class MCTS(object):
     """
@@ -11,12 +12,14 @@ class MCTS(object):
     tree policy, a default policy, and a backup strategy.
     See e.g. Browne et al. (2012) for a survey on monte carlo tree search
     """
-    def __init__(self, tree_policy, default_policy, backup):
+    def __init__(self, tree_policy, default_policy, backup, game):
         self.tree_policy = tree_policy
         self.default_policy = default_policy
         self.backup = backup
+        self.game = game
+        self.game_bak = copy.deepcopy(self.game)
 
-    def __call__(self, root, n=1000):
+    def __call__(self, s, n=1000):
         """
         Run the monte carlo tree search.
 
@@ -24,22 +27,33 @@ class MCTS(object):
         :param n: The number of roll-outs to be performed
         :return:
         """
-        if root.parent is not None:
-            raise ValueError("Root's parent must be None.")
 
+        root = StateNode(None, None, s, self.game)
+        
+        if root.parent is not None or root.parent_a is not None:
+            raise ValueError("Root's parent must be None.")
+                
         for _ in range(n):
             #selection
             node = _get_next_node(root, self.tree_policy)
             #simulation
             node.reward = self.default_policy(node)
+            print(node.reward)
             #back
             self.backup(node)
-
+            
+            root.reset(copy.deepcopy(self.game_bak))
+            
+        for i in root.children:
+            print(root.children[i].__dict__)
+            
         return rand_max(root.children.values(), key=lambda x: x.q).action
 
 
 def _expand(state_node):
     action = random.choice(state_node.untried_actions)
+    action = state_node.untried_actions[0]
+    print(action)
     return state_node.children[action].sample_state()
 
 

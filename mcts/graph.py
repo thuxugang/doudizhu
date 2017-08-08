@@ -1,11 +1,13 @@
 from __future__ import absolute_import
-from game.rlutil import get_state, get_actions, combine_mcts
+from game.rlutil import get_state, get_actions, combine
 
 class Node(object):
     def __init__(self, parent):
         self.parent = parent
         self.children = {}
+        #胜利
         self.q = 0
+        #总局数
         self.n = 0
 
 
@@ -28,12 +30,12 @@ class ActionNode(Node):
         used from the real world action instead from the belief state actions.
         :return: The state node, which was sampled.
         """
-        state_node = self.parent.perform(self.action)
+        state_node = self.parent.perform(self, self.action)
 
-        if state_node.state not in self.children:
-            self.children[state_node.state] = state_node
+        if state_node not in self.children:
+            self.children[state_node] = state_node
 
-        return self.children[state_node.state]
+        return self.children[state_node]
 
     def __str__(self):
         return "Action: {}".format(self.action)
@@ -43,18 +45,22 @@ class StateNode(Node):
     """
     A node holding a state in the tree.
     """
-    def __init__(self, parent, state, game):
+    def __init__(self, parent, parent_a, state, game):
         super(StateNode, self).__init__(parent)
         self.state = state
         self.reward = 0
         self.game = game
+        self.parent_a = parent_a
         
         next_move_types, next_moves = game.get_next_moves()
         self.actions = get_actions(next_moves, game.actions_lookuptable, game)
 
         for action in self.actions:
             self.children[action] = ActionNode(self, action)
-
+    
+    def reset(self, game_bak):
+        self.game = game_bak
+        
     @property
     def untried_actions(self):
         """
@@ -67,15 +73,15 @@ class StateNode(Node):
     def untried_actions(self, value):
         raise ValueError("Untried actions can not be set.")
 
-    def reward(self, parent, action):
-        if self.game.playrecords.winner == 0:
-            return 0
-        elif self.game.playrecords.winner == 1:
+    def get_reward(self):
+        #if self.game.playrecords.winner == 0:
+        #    return 0
+        if self.game.playrecords.winner == 1:
             return 1
         else:
-            return -1  
+            return 0  
           
-    def perform(self, action):
+    def perform(self, parent_a, action):
         if action in [429, 430]:
             action_id = action
         else:
@@ -104,9 +110,9 @@ class StateNode(Node):
         #action
         next_move_types, next_moves = self.game.get_next_moves()
         actions = get_actions(next_moves, self.game.actions_lookuptable, self.game)
-        s_ = combine_mcts(s_, actions)
+        s_ = combine(s_, actions)
     
-        return StateNode(self, s_, self.game)
+        return StateNode(self, parent_a, s_, self.game)
     
     def is_terminal(self):
         if self.game.playrecords.winner == 0:

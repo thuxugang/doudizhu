@@ -69,12 +69,6 @@ def get_actions(next_moves, actions_lookuptable, game):
     return actions
 
 #结合state和可以出的actions作为新的state    
-def combine_mcts(s, a):
-    for i in a:
-        s[33+i] = 1
-    return str(s)
-
-#结合state和可以出的actions作为新的state    
 def combine(s, a):
     for i in a:
         s[33+i] = 1

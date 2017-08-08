@@ -20,11 +20,8 @@ def _roll_out(state_node, stopping_criterion):
     state = state_node
     action = state_node.actions
     while not stopping_criterion(state):
-        reward += state.reward
-        
         #random
         action = random.choice(state.actions)
-        parent = state
-        state = parent.perform(action)
-
+        state = state.children[action].sample_state()
+    reward += state.get_reward()
     return reward

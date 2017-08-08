@@ -7,9 +7,8 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 import numpy as np
-from .rlutil import get_state, get_actions, combine_mcts
+from .rlutil import get_state, get_actions, combine
 from mcts.mcts import MCTS
-from mcts.graph import StateNode
 from mcts.tree_policies import UCB1
 from mcts.default_policies import random_terminal_roll_out
 from mcts.backups import monte_carlo
@@ -130,25 +129,24 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
     if action == "mcts":
         game_copy = copy.deepcopy(game)
         
-        game_copy.players[0].model = "random"
+        game_copy.players[0].model = "mcts"
         game_copy.players[1].model = "random"
         game_copy.players[2].model = "random"
         
         mcts = MCTS(tree_policy=UCB1(c=1.41), 
                     default_policy=random_terminal_roll_out,
-                    backup=monte_carlo)
+                    backup=monte_carlo,
+                    game = game_copy)
     
         #state
         s = get_state(game_copy.playrecords, player=1)
         #action
         actions = get_actions(next_moves, game_copy.actions_lookuptable, game_copy)
         #new state
-        s = combine_mcts(s, actions)
-        
-        root = StateNode(None, s, game_copy)
+        s = combine(s, actions)
         
         print("actions",actions)
-        best_action = mcts(root, n=10)    
+        best_action = mcts(s, n=10)    
         print("best_action",best_action)
         
         if best_action == 429:
