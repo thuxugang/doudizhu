@@ -192,11 +192,17 @@ class DQNPrioritizedReplay:
             self.memory = np.zeros((self.memory_size, n_features * 2 + 2 + n_actions))
 
         #显存占用20%
-        gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)  
-
+        #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.25)  
+        
         if sess is None:
-            self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) 
+            #self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options)) 
+            
+            #accelerate MLP
+            config = tf.ConfigProto()
+            config.graph_options.optimizer_options.global_jit_level = tf.OptimizerOptions.ON_1
+            self.sess = tf.Session(config=config)
             self.sess.run(tf.global_variables_initializer())
+            print("use pdqn!")
         else:
             self.sess = sess
 

@@ -16,14 +16,14 @@ if __name__=="__main__":
     step = 0
     num_epochs = 10000001
     rl_model = "prioritized_dqn"
-    start_iter=3500000
+    start_iter=3600000
     
     my_config = Config()
     learning_rate = 0.00001
-    e_greedy = 0.9
+    e_greedy = 0.95
     
     RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.8,  e_greedy_increment=0.000001)
-    agent = Agent(models=["rl","cxgz","self"], my_config=my_config, RL=RL, train=True)
+    agent = Agent(models=["rl","combine","combine"], my_config=my_config, RL=RL, train=True)
     
     losss = []
     winrates = []
