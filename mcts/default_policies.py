@@ -23,7 +23,7 @@ def _roll_out(state_node, stopping_criterion):
         reward += state.reward
         
         #random
-        action = random.choice(state_node.actions)
+        action = random.choice(state.actions)
         parent = state
         state = parent.perform(action)
 

@@ -76,7 +76,6 @@ class StateNode(Node):
             return -1  
           
     def perform(self, action):
-        
         if action in [429, 430]:
             action_id = action
         else:

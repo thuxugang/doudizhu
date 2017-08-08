@@ -2026,3 +2026,8 @@ episode: 3998000, epsilon: 0.886070000002475, loss: 0.34941, win_rate: [ 0.31721
 episode: 4000000, epsilon: 0.8890290000025601, loss: 0.0794598, win_rate: [ 0.31696421  0.33290917  0.35012662]
 episode: 4002000, epsilon: 0.8919600000026444, loss: 0.494786, win_rate: [ 0.31695444  0.3329345   0.35011107]
 episode: 4004000, epsilon: 0.8949260000027297, loss: 0.0423831, win_rate: [ 0.31698436  0.33292244  0.35009319]
+episode: 0, win_rate: [ 0.  0.  1.]
+episode: 0, win_rate: [ 0.  0.  1.]
+episode: 0, win_rate: [ 0.  0.  1.]
+episode: 0, win_rate: [ 0.  0.  1.]
+episode: 0, win_rate: [ 0.  0.  1.]

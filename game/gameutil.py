@@ -147,8 +147,10 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         
         root = StateNode(None, s, game_copy)
         
+        print("actions",actions)
         best_action = mcts(root, n=10)    
         print("best_action",best_action)
+        
         if best_action == 429:
             return "buyao", []
         elif best_action == 430:
