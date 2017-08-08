@@ -28,9 +28,9 @@ class MCTS(object):
         :return:
         """
 
-        root = StateNode(None, None, s, self.game)
+        root = StateNode(None, s, self.game)
         
-        if root.parent is not None or root.parent_a is not None:
+        if root.parent is not None:
             raise ValueError("Root's parent must be None.")
                 
         for _ in range(n):

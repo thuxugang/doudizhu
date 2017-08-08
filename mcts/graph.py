@@ -45,12 +45,11 @@ class StateNode(Node):
     """
     A node holding a state in the tree.
     """
-    def __init__(self, parent, parent_a, state, game):
+    def __init__(self, parent, state, game):
         super(StateNode, self).__init__(parent)
         self.state = state
         self.reward = 0
         self.game = game
-        self.parent_a = parent_a
         
         next_move_types, next_moves = game.get_next_moves()
         self.actions = get_actions(next_moves, game.actions_lookuptable, game)
@@ -81,7 +80,7 @@ class StateNode(Node):
         else:
             return 0  
           
-    def perform(self, parent_a, action):
+    def perform(self, parent, action):
         if action in [429, 430]:
             action_id = action
         else:
@@ -112,7 +111,7 @@ class StateNode(Node):
         actions = get_actions(next_moves, self.game.actions_lookuptable, self.game)
         s_ = combine(s_, actions)
     
-        return StateNode(self, parent_a, s_, self.game)
+        return StateNode(parent, s_, self.game)
     
     def is_terminal(self):
         if self.game.playrecords.winner == 0:
