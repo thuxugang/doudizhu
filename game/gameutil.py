@@ -145,9 +145,8 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         #new state
         s = combine(s, actions)
         
-        print("actions",actions)
-        best_action = mcts(s, n=10)    
-        print("best_action",best_action)
+        best_action, win_pob = mcts(s, n=2000)    
+        print("actions",actions, "best_action",best_action, "win_pob", win_pob)
         
         if best_action == 429:
             return "buyao", []

@@ -38,22 +38,21 @@ class MCTS(object):
             node = _get_next_node(root, self.tree_policy)
             #simulation
             node.reward = self.default_policy(node)
-            print(node.reward)
+            #print(node.reward)
             #back
             self.backup(node)
             
             root.reset(copy.deepcopy(self.game_bak))
             
-        for i in root.children:
-            print(root.children[i].__dict__)
-            
-        return rand_max(root.children.values(), key=lambda x: x.q).action
+        #for i in root.children:
+        #    print(root.children[i].__dict__)
+        return rand_max(root.children.values(), key=lambda x: x.q).action, rand_max(root.children.values(), key=lambda x: x.q).q
 
 
 def _expand(state_node):
     action = random.choice(state_node.untried_actions)
     action = state_node.untried_actions[0]
-    print(action)
+    #print(action)
     return state_node.children[action].sample_state()
 
 

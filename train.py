@@ -14,7 +14,7 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 1
+    num_epochs = 1000
     rl_model = "prioritized_dqn"
     start_iter=0
     
