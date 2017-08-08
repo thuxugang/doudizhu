@@ -28,12 +28,11 @@ class ActionNode(Node):
         used from the real world action instead from the belief state actions.
         :return: The state node, which was sampled.
         """
-        state_node = self.parent.perform(self.action)
+        state = self.parent.perform(self.action)
+        if state not in self.children:
+            self.children[state] = StateNode(self, state, self.parent.game)
 
-        if state_node.state not in self.children:
-            self.children[state_node.state] = state_node
-
-        return self.children[state_node.state]
+        return self.children[state]
 
     def __str__(self):
         return "Action: {}".format(self.action)
@@ -107,7 +106,7 @@ class StateNode(Node):
         actions = get_actions(next_moves, self.game.actions_lookuptable, self.game)
         s_ = combine_mcts(s_, actions)
     
-        return StateNode(self, s_, self.game)
+        return s_
     
     def is_terminal(self):
         if self.game.playrecords.winner == 0:

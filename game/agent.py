@@ -52,7 +52,7 @@ class Agent(object):
     def step(self, action_id=0):
         #action = [self.next_move_types, self.next_moves, action_id, self.actions]
         #print(len(self.next_moves),len(self.actions))
-        winner, done = self.game.get_next_move(action=None)
+        winner, done = self.game.get_next_move(action="mcts")
         new_state = get_state(self.game.playrecords, self.player)
         
         alpha = 0

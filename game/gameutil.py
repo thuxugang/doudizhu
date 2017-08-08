@@ -7,7 +7,7 @@ Created on Thu Jul 13 21:55:58 2017
 from __future__ import print_function
 from __future__ import absolute_import
 import numpy as np
-from .rlutil import get_state, get_actions, combine
+from .rlutil import get_state, get_actions, combine_mcts
 from mcts.mcts import MCTS
 from mcts.graph import StateNode
 from mcts.tree_policies import UCB1
@@ -126,16 +126,8 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
 ############################################
 def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action):
     
-    #mcts simulation
-    if action != None:
-        if action == 429:
-            return "buyao", []
-        elif action == 430:
-            return "yaobuqi", []
-        else:
-            return next_move_types[action], next_moves[action] 
-
-    else:   
+    #init mcts
+    if action == "mcts":
         game_copy = copy.deepcopy(game)
         
         game_copy.players[0].model = "random"
@@ -151,20 +143,28 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         #action
         actions = get_actions(next_moves, game_copy.actions_lookuptable, game_copy)
         #new state
-        s = combine(s, actions)
+        s = combine_mcts(s, actions)
         
         root = StateNode(None, s, game_copy)
         
-        best_action = mcts(root, n=1000)    
-            
+        best_action = mcts(root, n=10)    
+        print("best_action",best_action)
         if best_action == 429:
             return "buyao", []
         elif best_action == 430:
             return "yaobuqi", []
         else:
-            return next_move_types[best_action], next_moves[best_action] 
-
-
+            best_action_id = actions.index(best_action)
+            return next_move_types[best_action_id], next_moves[best_action_id] 
+    #mcts simulation
+    else:   
+        if action == 429:
+            return "buyao", []
+        elif action == 430:
+            return "yaobuqi", []
+        else:
+            return next_move_types[action], next_moves[action] 
+        
 ############################################
 #                xgmodel                   #
 ############################################

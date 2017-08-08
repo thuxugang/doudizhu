@@ -17,14 +17,13 @@ def random_terminal_roll_out(state_node):
 
 def _roll_out(state_node, stopping_criterion):
     reward = 0
-    state = state_node.state
-    parent = state_node.parent.parent.state
-    action = state_node.parent.action
+    state = state_node
+    action = state_node.actions
     while not stopping_criterion(state):
         reward += state.reward
         
         #random
-        action = random.choice(state_node.state.actions)
+        action = random.choice(state_node.actions)
         parent = state
         state = parent.perform(action)
 

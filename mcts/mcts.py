@@ -28,6 +28,7 @@ class MCTS(object):
             raise ValueError("Root's parent must be None.")
 
         for _ in range(n):
+            print(_)
             #selection
             node = _get_next_node(root, self.tree_policy)
             #simulation
