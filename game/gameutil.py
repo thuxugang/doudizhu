@@ -13,6 +13,7 @@ from mcts.tree_policies import UCB1
 from mcts.default_policies import random_terminal_roll_out
 from mcts.backups import monte_carlo
 import copy
+import time
 
 #发牌
 def game_init(players, playrecords, cards, train):
@@ -145,8 +146,10 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         #new state
         s = combine(s, actions)
         
-        best_action, win_pob = mcts(s, n=5000)    
-        print("actions",actions, "best_action",best_action, "win_pob", win_pob)
+        begin = time.time()
+        best_action, win_pob = mcts(s, n=1000)   
+        duration = time.time() - begin
+        print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
         
         if best_action == 429:
             return "buyao", []
