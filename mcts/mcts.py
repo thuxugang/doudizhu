@@ -5,7 +5,7 @@ import random
 from .utils import rand_max
 import copy
 from .graph import StateNode
-
+import time
 class MCTS(object):
     """
     The central MCTS class, which performs the tree search. It gets a
@@ -35,14 +35,23 @@ class MCTS(object):
                 
         for _ in range(n):
             #selection
+            begin = time.time()
             node = _get_next_node(root, self.tree_policy)
+            print(time.time()-begin)
             #simulation
+            begin = time.time()
             node.reward = self.default_policy(node)
+            print(time.time()-begin)
             #print(node.reward)
             #back
+            begin = time.time()
             self.backup(node)
+            print(time.time()-begin)
             
+            begin = time.time()
             root.reset(copy.deepcopy(self.game_bak))
+            print(time.time()-begin)
+            print("========")
             
         #for i in root.children:
         #    print(root.children[i].__dict__)

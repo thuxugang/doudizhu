@@ -147,7 +147,7 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         s = combine(s, actions)
         
         begin = time.time()
-        best_action, win_pob = mcts(s, n=1000)   
+        best_action, win_pob = mcts(s, n=10)   
         duration = time.time() - begin
         print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
         
