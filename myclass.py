@@ -92,7 +92,7 @@ class PlayRecords(object):
    
     #展示
     def show(self, info):
-        print info
+        print(info)
         card_show(self.cards_left1, "player 1", 1)
         card_show(self.cards_left2, "player 2", 1)
         card_show(self.cards_left3, "player 3", 1)
@@ -276,7 +276,7 @@ class Moves(object):
                         self.next_moves.append(move) 
                         self.next_moves_type.append("shunzi")
         else:
-            print "last_move_type_wrong"
+            print("last_move_type_wrong")
             
         #除了bomb,都可以出炸
         if last_move_type != "bomb":
@@ -289,7 +289,7 @@ class Moves(object):
     
     #展示
     def show(self, info):
-        print info
+        print(info)
         #card_show(self.dan, "dan", 2)
         #card_show(self.dui, "dui", 2)
         #card_show(self.san, "san", 2)

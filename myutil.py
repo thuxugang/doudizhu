@@ -12,26 +12,26 @@ def card_show(cards, info, n):
     
     #扑克牌记录类展示
     if n == 1:
-        print info
+        print(info)
         names = []
         for i in cards:
             names.append(i.name+i.color)
-        print names    
+        print(names)    
     #Moves展示
     elif n == 2:
         if len(cards) == 0:
             return 0
-        print info
+        print(info)
         moves = []
         for i in cards:
             names = []
             for j in i:
                 names.append(j.name+j.color)
             moves.append(names)
-        print moves    
+        print(moves)  
     #record展示
     elif n == 3:
-        print info
+        print(info)
         names = []
         for i in cards:
             tmp = []
@@ -45,7 +45,7 @@ def card_show(cards, info, n):
             except:
                 tmp.append(i[1])
             names.append(tmp)
-        print names
+        print(names)
        
 
 #在Player的next_moves中选择出牌方法

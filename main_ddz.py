@@ -73,12 +73,13 @@ if __name__=="__main__":
     game_ddz = Game("random")  
     game_ddz.game_start()
     
-    i = 0
-    while(game_ddz.playrecords.winner == 0):
-        game_ddz.playrecords.show(str(i))
-        game_ddz.next_move()
-        i = i + 1
-
+    for j in range(10000):
+        i = 0
+        while(game_ddz.playrecords.winner == 0):
+            #game_ddz.playrecords.show(str(i))
+            game_ddz.next_move()
+            i = i + 1
+        print(j)
     
     
     
