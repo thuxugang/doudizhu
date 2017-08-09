@@ -46,6 +46,9 @@ class MCTS(object):
             
         #for i in root.children:
         #    print(root.children[i].__dict__)
+        #    for j in root.children[i].children:
+        #        print(root.children[i].children[j].__dict__)
+        #    print("=======")
         return rand_max(root.children.values(), key=lambda x: x.q).action, rand_max(root.children.values(), key=lambda x: x.q).q
 
 

@@ -14,13 +14,13 @@ from game.config import Config
 if __name__=="__main__":
     
     step = 0
-    num_epochs = 1000
+    num_epochs = 100
     rl_model = "prioritized_dqn"
     start_iter=0
     
     my_config = Config()
 
-    agent = Agent(models=["mcts","random","random"], my_config=my_config, RL=None, train=True)
+    agent = Agent(models=["mcts","cxgz","cxgz"], my_config=my_config, RL=None, train=True)
     
     losss = []
     winrates = []
@@ -34,8 +34,8 @@ if __name__=="__main__":
     for episode in range(start_iter, num_epochs):
         # initial observation
         s = agent.reset()
-        if episode%2000 == 0:
-            print(agent.game.playrecords.show("==================="+str(episode)+"==================="))
+        #if episode%2000 == 0:
+        print(agent.game.playrecords.show("==================="+str(episode)+"==================="))
         done = False
         while(not done):
             # RL choose action based on observation
@@ -64,13 +64,13 @@ if __name__=="__main__":
             
         if episode%2000 == 0:
             print("episode: ",episode, ", win_rate: ",win_rate)
-            print(agent.game.get_record().records)
+        print(agent.game.get_record().records)
             
-            f.write("episode: "+ str(episode) +  ", win_rate: "+ str(win_rate))
-            f.write("\n")
+            #f.write("episode: "+ str(episode) +  ", win_rate: "+ str(win_rate))
+            #f.write("\n")
             #f.write(str(agent.game.get_record().records))
             #f.write("\n")
-            f.flush()
+            #f.flush()
             
     # end of game
     print('game over')
