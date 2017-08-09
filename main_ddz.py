@@ -7,8 +7,8 @@ Created on Thu Jul 13 21:55:58 2017
 from myclass import Cards, Player, PlayRecords, WebShow
 from myutil import game_init
 import jsonpickle
-
-                    
+import time
+import copy                   
 class Game(object):
     
     def __init__(self, model):
@@ -70,16 +70,16 @@ class Game(object):
    
 if __name__=="__main__":
     
-    game_ddz = Game("random")  
+    begin = time.time()
+    game_ddz = Game("random") 
     game_ddz.game_start()
-    
     for j in range(10000):
+        #game_ddz = copy.deepcopy(game_ddz)
         i = 0
         while(game_ddz.playrecords.winner == 0):
             #game_ddz.playrecords.show(str(i))
             game_ddz.next_move()
             i = i + 1
-        print(j)
-    
-    
+        print(game_ddz.playrecords.winner)
+    print(time.time()-begin)
     
