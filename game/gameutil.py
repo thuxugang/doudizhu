@@ -111,12 +111,12 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return action[0][action[2]], action[1][action[2]] 
     #随机
     elif model == "combine":
-        r = np.random.randint(0,6)
+        r = np.random.randint(0,4)
         if r == 0:
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
             return choose_min(next_move_types, next_moves, last_move_type)
-        elif 2 <= r < 6:
+        else:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
         #else:
         #    return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
@@ -128,11 +128,17 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
     
     #init mcts
     if action == "mcts":
+        
+        #要不起不需要mcst
+        if len(next_moves) == 0:
+            print("actions", [430])
+            return "yaobuqi", []
+        
         game_copy = copy.deepcopy(game)
         
         game_copy.players[0].model = "mcts"
-        game_copy.players[1].model = "random"
-        game_copy.players[2].model = "random"
+        game_copy.players[1].model = "combine"
+        game_copy.players[2].model = "combine"
         
         mcts = MCTS(tree_policy=UCB1(c=1.41), 
                     default_policy=random_terminal_roll_out,
@@ -147,7 +153,7 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         s = combine(s, actions)
         
         begin = time.time()
-        best_action, win_pob = mcts(s, n=10)   
+        best_action, win_pob = mcts(s, n=500)   
         duration = time.time() - begin
         print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
         
