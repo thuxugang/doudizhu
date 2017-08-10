@@ -88,6 +88,6 @@ def next_move():
 if __name__ == '__main__':
     global agent
     agent = Agent()
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000)
     
 

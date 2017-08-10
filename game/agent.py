@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from .myclass import Game
 from .rlutil import get_actions
 from .actions import  action_dict
-from rl.init_model import model_init
+from .config import Config
 
 ############################################
 #               LR接口类                   #
@@ -21,12 +21,12 @@ class Agent(object):
     def __init__(self):
         self.game = None
         
-        self.actions_lookuptable = action_dict
-        self.dim_actions = len(self.actions_lookuptable) + 2 #429 buyao, 430 yaobuqi
-        self.dim_states = 30 + 3 + 431 #431为dim_actions
-        
+        self.my_config = Config()
         self.actions = []
-        self.RL = model_init(self, rl_model="prioritized_dqn", e_greedy=1, start_iter=500000)
+
+        self.actions_lookuptable = self.my_config.actions_lookuptable
+        self.dim_actions = self.my_config.dim_actions
+        self.dim_states = self.my_config.dim_states
         
     def get_actions_space(self):
         self.next_move_types, self.next_moves = self.game.get_next_moves()
@@ -45,5 +45,5 @@ class Agent(object):
     
     def game_init(self, models=["rl","random","random"], train=True):
         self.models = models
-        self.game = Game(self, self.RL)
+        self.game = Game(self.models, self.my_config)
         self.game.game_start(train)

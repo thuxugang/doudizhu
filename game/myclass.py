@@ -14,7 +14,7 @@ import jsonpickle
 ############################################                   
 class Game(object):
     
-    def __init__(self, agent, RL):
+    def __init__(self, models, my_config):
         #初始化一副扑克牌类
         self.cards = Cards()
         
@@ -26,20 +26,20 @@ class Game(object):
         self.yaobuqis = []
         
         #choose模型
-        self.models = agent.models
+        self.models = models
         
-        #RL
-        self.agent = agent
-        self.RL = RL
+        self.my_config = my_config
+        
+        self.actions_lookuptable = my_config.actions_lookuptable
         
     #发牌
     def game_start(self, train):
         
         #初始化players
         self.players = []
-        self.players.append(Player(1, self.models[0], self.agent, self, self.RL))
-        self.players.append(Player(2, self.models[1], self.agent, self, self.RL))
-        self.players.append(Player(3, self.models[2], self.agent, self, self.RL))
+        self.players.append(Player(1, self.models[0], self.my_config, self))
+        self.players.append(Player(2, self.models[1], self.my_config, self))
+        self.players.append(Player(3, self.models[2], self.my_config, self))
         
         #初始化扑克牌记录类
         self.playrecords = PlayRecords()    
@@ -398,15 +398,14 @@ class Player(object):
     """
     player类
     """
-    def __init__(self, player_id, model, agent=None, game=None, RL=None):
+    def __init__(self, player_id, model, my_config=None, game=None):
         self.player_id = player_id
         self.cards_left = []
         #出牌模式
         self.model = model
         #RL_model
-        self.RL = RL
+        self.my_config = my_config
         self.game = game
-        self.agent = agent
 
     #展示
     def show(self, info):
@@ -457,7 +456,7 @@ class Player(object):
         return self.next_move_types, self.next_moves
         
     #出牌
-    def play(self, last_move_type, last_move, playrecords):
+    def play(self, last_move_type, last_move, playrecords, action_mcts=None):
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(next_move_types=self.next_move_types, 
                                                      next_moves=self.next_moves, 
@@ -465,10 +464,10 @@ class Player(object):
                                                      last_move=last_move, 
                                                      cards_left=self.cards_left, 
                                                      model=self.model, 
-                                                     RL=self.RL,
-                                                     agent=self.agent,
+                                                     my_config=self.my_config,
                                                      game=self.game,
-                                                     player_id=self.player_id)
+                                                     player_id=self.player_id,
+                                                     action_mcts=action_mcts)
         #记录
         end = self.record_move(playrecords)
         #展示
