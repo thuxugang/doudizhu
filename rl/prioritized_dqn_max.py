@@ -302,13 +302,10 @@ class DQNPrioritizedReplay:
         if np.random.uniform() < e_greedy:
             # forward feed the observation and get q value for every actions
             actions_value, b3 = self.sess.run([self.q_eval_model, self.bem],feed_dict={self.s: observation})
-            #print("nm",b3)
-            action = np.argmax(actions_value*actions_ont_hot)
-            if np.max(actions_value*actions_ont_hot) == 0.0:
-                action_id = np.random.randint(0, len(actions))
-                action = actions[action_id]                
-            else:
-                action_id = actions.index(action)
+            action_value_pos = actions_value*actions_ont_hot
+            action_value_pos[action_value_pos==0.0]=-np.inf
+            action = np.argmax(action_value_pos)
+            action_id = actions.index(action)
         else:
             action_id = np.random.randint(0, len(actions))
             action = actions[action_id]

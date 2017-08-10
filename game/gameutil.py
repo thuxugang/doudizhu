@@ -14,6 +14,10 @@ from mcts.default_policies import random_terminal_roll_out
 from mcts.backups import monte_carlo
 import copy
 import time
+from rl.init_model import model_init
+from game.config import Config
+
+RL_g = model_init(Config(), "prioritized_dqn", start_iter=3600000)
 
 #发牌
 def game_init(players, playrecords, cards, train):
@@ -91,6 +95,8 @@ def card_show(cards, info, n):
 #在Player的next_moves中选择出牌方法
 def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, RL, my_config, game, player_id, action):
     
+    global RL_g
+    
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
     elif model == "min":
@@ -100,7 +106,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
     elif model == "mcts":
         return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action)
     elif model in ["self","prioritized_dqn"]:
-       return choose_xgmodel(next_move_types, next_moves, RL, my_config, game, player_id)    
+       return choose_xgmodel(next_move_types, next_moves, RL_g, my_config, game, player_id)    
     #训练model
     elif model == "rl":
         if action[3][action[2]] == 429:
@@ -116,10 +122,10 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
             return choose_random(next_move_types, next_moves, last_move_type)
         elif r == 1:
             return choose_min(next_move_types, next_moves, last_move_type)
-        else:
+        elif r == 2:
             return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
-        #else:
-        #    return choose_xgmodel(next_move_types, next_moves, RL, agent, game, player_id)
+        else:
+            return choose_xgmodel(next_move_types, next_moves, RL_g, my_config, game, player_id)    
 
 ############################################
 #                  mcts                   #
@@ -137,8 +143,8 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         game_copy = copy.deepcopy(game)
         
         game_copy.players[0].model = "mcts"
-        game_copy.players[1].model = "combine"
-        game_copy.players[2].model = "combine"
+        game_copy.players[1].model = "random"
+        game_copy.players[2].model = "random"
         
         mcts = MCTS(tree_policy=UCB1(c=1.41), 
                     default_policy=random_terminal_roll_out,
@@ -153,7 +159,7 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         s = combine(s, actions)
         
         begin = time.time()
-        best_action, win_pob = mcts(s, n=500)   
+        best_action, win_pob = mcts(s, n=2000)   
         duration = time.time() - begin
         print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
         
