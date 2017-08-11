@@ -59,10 +59,9 @@ class Game(object):
         return next_move_types, next_moves
     
     #游戏进行    
-    def get_next_move(self):
+    def get_next_move(self, action):
     
-        self.get_next_moves()
-        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords)
+        self.last_move_type, self.last_move, self.end, self.yaobuqi = self.players[self.i].play(self.last_move_type, self.last_move, self.playrecords, action)
         if self.yaobuqi:
             self.yaobuqis.append(self.i)
         else:
@@ -81,6 +80,8 @@ class Game(object):
             #playrecords.show("=============Round " + str(playround) + " Start=============")
             self.i = 0  
             
+        self.get_next_moves()   
+        
 ############################################
 #              扑克牌相关类                 #
 ############################################
@@ -254,24 +255,24 @@ class Moves(object):
         for k, v in self.card_num_info.items():
             if len(v) == 4:
                 self.bomb.append(v)
-                #self.san.append(v[:3])
-                #self.dui.append(v[:2])
+                self.san.append(v[:3])
+                self.dui.append(v[:2])
                 self.dan.append(v[:1])
                 
         #三带一,三带二
         for san in self.san:
-            if self.dan[0][0].name != san[0].name:
-                self.san_dai_yi.append(san+self.dan[0])
-            if self.dui[0][0].name != san[0].name:
-                self.san_dai_er.append(san+self.dui[0])
-            #for dan in self.dan:
-            #    #防止重复
-            #    if dan[0].name != san[0].name:
-            #        self.san_dai_yi.append(san+dan)
-            #for dui in self.dui:
-            #    #防止重复
-            #    if dui[0].name != san[0].name:
-            #        self.san_dai_er.append(san+dui)  
+            #if self.dan[0][0].name != san[0].name:
+            #    self.san_dai_yi.append(san+self.dan[0])
+            #if self.dui[0][0].name != san[0].name:
+            #    self.san_dai_er.append(san+self.dui[0])
+            for dan in self.dan:
+                #防止重复
+                if dan[0].name != san[0].name:
+                    self.san_dai_yi.append(san+dan)
+            for dui in self.dui:
+                #防止重复
+                if dui[0].name != san[0].name:
+                    self.san_dai_er.append(san+dui)  
                     
         #获取最长顺子
         max_len = []
@@ -428,21 +429,30 @@ class Player(object):
         #同步playrecords
         if self.player_id == 1:
             playrecords.cards_left1 = self.cards_left
-            playrecords.next_moves1.append(self.next_moves)
             playrecords.next_move1.append(self.next_move)
         elif self.player_id == 2:
             playrecords.cards_left2 = self.cards_left 
-            playrecords.next_moves2.append(self.next_moves)
             playrecords.next_move2.append(self.next_move)
         elif self.player_id == 3:
             playrecords.cards_left3 = self.cards_left  
-            playrecords.next_moves3.append(self.next_moves)
             playrecords.next_move3.append(self.next_move)
         #是否牌局结束
         end = False
         if len(self.cards_left) == 0:
             end = True
         return end
+
+    #根据next_move同步cards_left
+    def record_moves(self, playrecords):
+
+        #同步playrecords
+        if self.player_id == 1:
+            playrecords.next_moves1.append(self.next_moves)
+        elif self.player_id == 2:
+            playrecords.next_moves2.append(self.next_moves)
+        elif self.player_id == 3:
+            playrecords.next_moves3.append(self.next_moves)
+
     
     #选牌
     def get_moves(self, last_move_type, last_move, playrecords):
@@ -453,6 +463,8 @@ class Player(object):
         #获取下次出牌列表
         self.next_move_types, self.next_moves = self.total_moves.get_next_moves(last_move_type, last_move)        
         #返回下次出牌列表
+        self.record_moves(playrecords)
+        
         return self.next_move_types, self.next_moves
         
     #出牌

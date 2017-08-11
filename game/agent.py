@@ -40,8 +40,8 @@ class Agent(object):
         return self.actions
 
     #游戏进行    
-    def next_move(self):
-        self.game.get_next_move()
+    def next_move(self, action):
+        self.game.get_next_move(action)
     
     def game_init(self, models=["rl","random","random"], train=True):
         self.models = models

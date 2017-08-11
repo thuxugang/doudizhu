@@ -109,9 +109,9 @@
                     <div class="panel panel-info">
                         <div class="panel-heading">农民1出牌规则</div>
                         <div id="model2">
-                            <input type="radio" v-model="model2" checked="true" value="random"/><label>随机出牌</label>
-                            <input type="radio" v-model="model2" value="cxgz"/><label>CX规则</label>
+                            <input type="radio" v-model="model2" checked="true" value="cxgz"/><label>CX规则</label>
                             <input type="radio" v-model="model2" value="xgmodel"/><label>xg模型</label>
+                            <input type="radio" v-model="model2" value="ren"/><label>人</label>
                         </div>
                     </div>
                 </form>
@@ -121,9 +121,9 @@
                     <div class="panel panel-info">
                         <div class="panel-heading">农民2出牌规则</div>
                         <div id="model3">
-                            <input type="radio" v-model="model3" checked="true" value="random"/><label>随机出牌</label>
-                            <input type="radio" v-model="model3" value="cxgz"/><label>CX规则</label>
+                            <input type="radio" v-model="model3" checked="true" value="cxgz"/><label>CX规则</label>
                             <input type="radio" v-model="model3" value="xgmodel"/><label>xg模型</label>
+                            <input type="radio" v-model="model3" value="ren"/><label>人</label>
                         </div>
                     </div>
                 </form>
@@ -149,8 +149,9 @@
                         <span class="badge" v-if="output.records.length%3==0">Your Turn</span>
                         {{output.next_move1}}
                     </ul>
-                    <ul class="list-group" v-for="item in output.next_moves1">
+                    <ul class="list-group" v-for="(index, item) in output.next_moves1">
                         <li class="list-group-item">
+                            <span class="badge">{{index}}</span>
                             {{item}}
                         </li>
                     </ul>
@@ -165,8 +166,9 @@
                         <span class="badge" v-if="output.records.length%3==1">Your Turn</span>
                         {{output.next_move2}}
                     </ul>
-                    <ul class="list-group" v-for="item in output.next_moves2">
+                    <ul class="list-group" v-for="(index, item) in output.next_moves2">
                         <li class="list-group-item">
+                            <span class="badge">{{index}}</span>
                             {{item}}
                         </li>
                     </ul>
@@ -181,8 +183,9 @@
                         <span class="badge" v-if="output.records.length%3==2">Your Turn</span>
                         {{output.next_move3}}
                     </ul>
-                    <ul class="list-group" v-for="item in output.next_moves3">
+                    <ul class="list-group" v-for="(index, item) in output.next_moves3">
                         <li class="list-group-item">
+                            <span class="badge">{{index}}</span>
                             {{item}}
                         </li>
                     </ul>
@@ -218,6 +221,7 @@
                 model1: "",
                 model2: "",
                 model3: "",
+                action: "",
             },
             methods: {
                 init: function () {

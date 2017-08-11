@@ -17,7 +17,7 @@ import time
 from rl.init_model import model_init
 from game.config import Config
 
-RL_g = model_init(Config(), rl_model="prioritized_dqn", e_greedy=1, start_iter=3600000)
+RL_g = model_init(Config(), rl_model="prioritized_dqn", e_greedy=1, start_iter=2850000)
 
 #发牌
 def game_init(players, playrecords, cards, train):
@@ -103,6 +103,8 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
     elif model == "mcts":
         return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts)
+    elif model == "ren":
+        return choose_ren(next_move_types, next_moves, action_mcts)   
     #随机
     elif model == "combine":
         r = np.random.randint(0,3)
@@ -163,7 +165,7 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         s = combine(s, actions)
         
         begin = time.time()
-        best_action, win_pob = mcts(s, n=2000)   
+        best_action, win_pob = mcts(s, n=1000)   
         duration = time.time() - begin
         print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
         
@@ -182,7 +184,20 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
             return "yaobuqi", []
         else:
             return next_move_types[action_mcts], next_moves[action_mcts] 
+
+############################################
+#                  ren                     #
+############################################
+def choose_ren(next_move_types, next_moves, action_ren):
+    #要不起
+    if len(next_moves) == 0:
+        return "yaobuqi", []
+    else:
+        #添加不要
+        if action_ren == len(next_moves):
+            return "buyao", []
         
+        return next_move_types[action_ren], next_moves[action_ren]         
         
 ############################################
 #                  min                     #

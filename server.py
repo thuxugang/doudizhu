@@ -67,6 +67,7 @@ def init():
     model3 = request.form["model3"]
     
     agent.game_init(models=[model1, model2, model3], train=False)
+    agent.game.get_next_moves()
     record = agent.game.get_record()
     
     return record
@@ -76,7 +77,7 @@ def init():
 def play():
     
     global agent
-    agent.next_move()
+    agent.next_move(action=None)
     record = agent.game.get_record()
     return record
 
