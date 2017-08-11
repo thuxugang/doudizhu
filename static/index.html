@@ -77,20 +77,30 @@
             </div>
         </form>
 
+        <!--<div class="show_radio" v-show="show_radio">-->
+            <!--<div class="col-xs-12">-->
+                <!--<form class="title">-->
+                    <!--<div class="panel panel-info">-->
+                        <!--<div class="panel-heading">是否显示Records</div>-->
+                        <!--<div id="show_records">-->
+                            <!--<input type="radio" v-model="show_record" value="yes" checked="true" /><label>是</label>-->
+                            <!--<input type="radio" v-model="show_record" value="no"/><label>否</label>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</form>-->
+            <!--</div>-->
+        <!--</div>-->
+
         <div class="show_radio" v-show="show_radio">
             <div class="col-xs-12">
                 <form class="title">
                     <div class="panel panel-info">
-                        <div class="panel-heading">是否显示Records</div>
-                        <div id="show_records">
-                            <input type="radio" v-model="show_record" value="yes" checked="true" /><label>是</label>
-                            <input type="radio" v-model="show_record" value="no"/><label>否</label>
-                        </div>
+                        <div class="panel-heading">出牌规则</div>
+                        单牌、对牌、三张牌、三带一、三带二、顺子（5张以上）、炸弹
                     </div>
                 </form>
             </div>
         </div>
-
         <div class="show_radio" v-show="show_radio">
             <div class="col-xs-4">
                 <form class="title">
@@ -147,7 +157,7 @@
             </div>
             <div class="panel panel-info" v-show="ren">
                 <div class="panel-heading">人工出牌</div>
-                <textarea class="form-control" rows="1" v-model="action_id"></textarea>
+                <textarea class="form-control" rows="1" v-model="action_id" resize: none></textarea>
             </div>
             <div class="col-xs-4">
                 <div class="panel panel-info ">
