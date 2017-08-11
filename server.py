@@ -75,9 +75,16 @@ def init():
 @app.route('/play',methods=['POST','GET'])
 @crossdomain(origin='*')
 def play():
-    
     global agent
-    agent.next_move(action=None)
+    try:
+        if request.form["action_id"] == "":
+            action_id = ""
+        else:
+            action_id = int(request.form["action_id"])
+    except:
+        action_id = None
+    print(action_id)
+    agent.next_move(action=action_id)
     record = agent.game.get_record()
     return record
 

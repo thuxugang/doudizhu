@@ -104,7 +104,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
     elif model == "mcts":
         return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts)
     elif model == "ren":
-        return choose_ren(next_move_types, next_moves, action_mcts)   
+        return choose_ren(next_move_types, next_moves, last_move_type, action_mcts)   
     #随机
     elif model == "combine":
         r = np.random.randint(0,3)
@@ -188,13 +188,13 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
 ############################################
 #                  ren                     #
 ############################################
-def choose_ren(next_move_types, next_moves, action_ren):
+def choose_ren(next_move_types, next_moves, last_move_type, action_ren):
     #要不起
     if len(next_moves) == 0:
         return "yaobuqi", []
     else:
         #添加不要
-        if action_ren == len(next_moves):
+        if action_ren == "" and last_move_type != "start":
             return "buyao", []
         
         return next_move_types[action_ren], next_moves[action_ren]         
