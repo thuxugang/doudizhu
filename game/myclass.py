@@ -605,5 +605,11 @@ class WebShow(object):
             return u"小王"
         elif i.name == "15":
             return u"大王"
+        elif i.name == "11":
+            return u"J"
+        elif i.name == "12":
+            return u"Q"
+        elif i.name == "13":
+            return u"K"
         else:
-            return i.name+i.color
+            return i.name
