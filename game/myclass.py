@@ -468,7 +468,7 @@ class Player(object):
         return self.next_move_types, self.next_moves
         
     #出牌
-    def play(self, last_move_type, last_move, playrecords, action_mcts=None):
+    def play(self, last_move_type, last_move, playrecords, action_mcts=None, simulation=False):
         #在next_moves中选择出牌方法
         self.next_move_type, self.next_move = choose(next_move_types=self.next_move_types, 
                                                      next_moves=self.next_moves, 
@@ -479,7 +479,8 @@ class Player(object):
                                                      my_config=self.my_config,
                                                      game=self.game,
                                                      player_id=self.player_id,
-                                                     action_mcts=action_mcts)
+                                                     action_mcts=action_mcts,
+                                                     simulation=simulation)
         #记录
         end = self.record_move(playrecords)
         #展示

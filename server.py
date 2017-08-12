@@ -83,7 +83,6 @@ def play():
             action_id = int(request.form["action_id"])
     except:
         action_id = None
-    print(action_id)
     agent.next_move(action=action_id)
     record = agent.game.get_record()
     return record

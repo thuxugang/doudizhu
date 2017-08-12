@@ -93,7 +93,7 @@ def card_show(cards, info, n):
        
 
 #在Player的next_moves中选择出牌方法
-def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, my_config, game, player_id, action_mcts):
+def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, model, my_config, game, player_id, action_mcts, simulation):
     
     if model == "random":
         return choose_random(next_move_types, next_moves, last_move_type)
@@ -102,7 +102,7 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
     elif model == "cxgz":
         return choose_cxgz(next_move_types, next_moves, last_move_type, last_move, cards_left, model)
     elif model == "mcts":
-        return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts)
+        return choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts, simulation)
     elif model == "ren":
         return choose_ren(next_move_types, next_moves, last_move_type, action_mcts)   
     #随机
@@ -136,10 +136,10 @@ def choose(next_move_types, next_moves, last_move_type, last_move, cards_left, m
 ############################################
 #                  mcts                   #
 ############################################
-def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts):
+def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, action_mcts, simulation):
     
     #init mcts
-    if action_mcts == None:
+    if simulation == False:
         
         #要不起不需要mcst
         if len(next_moves) == 0:

@@ -88,7 +88,7 @@ class StateNode(Node):
         
         while(self.game.i <= 2):
             self.game.get_next_moves()
-            self.game.last_move_type, self.game.last_move, self.game.end, self.game.yaobuqi = self.game.players[self.game.i].play(self.game.last_move_type, self.game.last_move, self.game.playrecords, action_id)
+            self.game.last_move_type, self.game.last_move, self.game.end, self.game.yaobuqi = self.game.players[self.game.i].play(self.game.last_move_type, self.game.last_move, self.game.playrecords, action_id, simulation=True)
             if self.game.yaobuqi:
                 self.game.yaobuqis.append(self.game.i)
             else:
