@@ -17,7 +17,7 @@ import time
 from rl.init_model import model_init
 from game.config import Config
 
-RL_g = model_init(Config(), rl_model="prioritized_dqn", e_greedy=1, start_iter=2850000)
+RL_g = model_init(Config(), rl_model="prioritized_dqn", e_greedy=1, start_iter=5950000)
 
 #发牌
 def game_init(players, playrecords, cards, train):
