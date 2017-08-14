@@ -165,9 +165,12 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
         s = combine(s, actions)
         
         begin = time.time()
-        best_action, win_pob = mcts(s, n=1000)   
+        best_action, win_prob = mcts(s, n=1000)   
+        
+        game.playrecords.win_prob = round(win_prob,2)
+        
         duration = time.time() - begin
-        print("actions",actions, "best_action",best_action, "win_pob", win_pob, "time", duration)
+        print("actions",actions, "best_action",best_action, "win_prob", win_prob, "time", duration)
         
         if best_action == 429:
             return "buyao", []
@@ -175,7 +178,7 @@ def choose_mcts(next_move_types, next_moves, last_move_type, last_move, game, ac
             return "yaobuqi", []
         else:
             best_action_id = actions.index(best_action)
-            return next_move_types[best_action_id], next_moves[best_action_id] 
+            return next_move_types[best_action_id], next_moves[best_action_id]
     #mcts simulation
     else:   
         if action_mcts == 429:

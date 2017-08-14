@@ -145,14 +145,15 @@
             <div class="panel panel-info">
                 <div class="panel-heading">余牌统计</div>
                 <div class="panel-body" v-show = "auto">
-                    <h2>Player 1： {{output.cards_left1}}</h2>
-                    <h2>Player 2： {{output.cards_left2}}</h2>
-                    <h2>Player 3： {{output.cards_left3}}</h2>
+                    <h2>地主： {{output.cards_left1}}</h2>
+                    <h2>农民1： {{output.cards_left2}}</h2>
+                    <h2>农民2： {{output.cards_left3}}</h2>
                 </div>
                 <div class="panel-body" v-show ="ren">
-                    <h2>Player 1： {{output.cards_left1.length}}</h2>
-                    <h2>Player 2： {{output.cards_left2}}</h2>
-                    <h2>Player 3： {{output.cards_left3}}</h2>
+                    <h2>地主： {{output.cards_left1}}</h2>
+                    <h2>农民1： {{output.cards_left2}}</h2>
+                    <h2>农民2： {{output.cards_left3}}</h2>
+                    <h2>当前胜率： {{output.win_prob}}</h2>
                 </div>
             </div>
             <div class="panel panel-info" v-show="ren">

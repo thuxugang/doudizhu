@@ -174,7 +174,9 @@ class PlayRecords(object):
         
         #出牌者
         self.player = 1
-   
+        
+        self.win_prob = 0
+        
     #展示
     def show(self, info):
         print(info)
@@ -503,6 +505,9 @@ class WebShow(object):
     网页展示类
     """    
     def __init__(self, playrecords):
+        
+        #mcts胜率
+        self.win_prob = playrecords.win_prob
         
         #胜利者
         self.winner = playrecords.winner
