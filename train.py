@@ -19,10 +19,10 @@ if __name__=="__main__":
     start_iter=5950000
     
     my_config = Config()
-    learning_rate = 0.00001
+    learning_rate = 0.0001
     e_greedy = 1
     
-    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.9,  e_greedy_increment=0.00001)
+    RL = model_init(my_config, rl_model, e_greedy=e_greedy, start_iter=start_iter, epsilon_init=0.85,  e_greedy_increment=0.00001)
     agent = Agent(models=["rl","cxgz","cxgz"], my_config=my_config, RL=RL, train=True)
     
     losss = []
