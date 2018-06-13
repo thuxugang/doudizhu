@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The DQN improvement: Prioritized Experience Replay (based on https://arxiv.org/abs/1511.05952)
 
@@ -13,8 +14,10 @@ modified by thuxugang
 from __future__ import absolute_import
 import numpy as np
 import tensorflow as tf
+import os
 
 tf.set_random_seed(1)
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 class SumTree(object):
     """

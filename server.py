@@ -12,6 +12,9 @@ from flask import request
 from datetime import timedelta
 from flask import make_response, request, current_app, send_from_directory
 from functools import update_wrapper
+import os
+
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
 def crossdomain(origin=None, methods=None, headers=None,
                 max_age=21600, attach_to_all=True,
@@ -95,6 +98,6 @@ def next_move():
 if __name__ == '__main__':
     global agent
     agent = Agent()
-    app.run(host='10.18.119.14', port=5000, threaded=True)
+    app.run(host='10.1.0.189', port=5000, threaded=True)
     
 

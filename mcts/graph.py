@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 from game.rlutil import get_state, get_actions, combine
 
